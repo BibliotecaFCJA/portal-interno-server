@@ -12,8 +12,7 @@ tsconfig.tsbuildinfo
 # Dados gerados localmente (contém caminhos internos da máquina)
 
 
-# Scripts de inicialização locais (só desta máquina)
-iniciar.sh
+# Windows-only startup launcher
 iniciar.cmd
 
 # Logs e lixo comum

@@ -1,0 +1,3 @@
+Sistema: Projeto sem cadastro no portal
+ID: d69b7f46652e403fbb4196da07bf9959
+Observação: esta pasta não está associada a um sistema cadastrado em data/custom-systems.json.
