@@ -6,10 +6,10 @@
     "category": "Operações",
     "icon": "MapPin",
     "type": "local",
-    "sourceFolder": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno\\storage\\projects\\4c0622e6810f4eeeb2642ed7",
-    "workDir": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno\\storage\\projects\\4c0622e6810f4eeeb2642ed7",
+    "sourceFolder": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno-server\\storage\\projects\\4c0622e6810f4eeeb2642ed7",
+    "workDir": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno-server\\storage\\projects\\4c0622e6810f4eeeb2642ed7",
     "startCommand": [
-      "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno\\storage\\projects\\4c0622e6810f4eeeb2642ed7\\.venv\\Scripts\\python.exe",
+      "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno-server\\storage\\projects\\4c0622e6810f4eeeb2642ed7\\.portal-venv\\Scripts\\python.exe",
       "app.py"
     ],
     "port": 8000,
@@ -33,10 +33,10 @@
     "category": "Dados",
     "icon": "Boxes",
     "type": "local",
-    "sourceFolder": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno\\storage\\projects\\1eaeabc6f5b14257b8060d6115a84db3",
-    "workDir": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno\\storage\\projects\\1eaeabc6f5b14257b8060d6115a84db3",
+    "sourceFolder": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno-server\\storage\\projects\\1eaeabc6f5b14257b8060d6115a84db3",
+    "workDir": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno-server\\storage\\projects\\1eaeabc6f5b14257b8060d6115a84db3",
     "startCommand": [
-      "python.exe",
+      "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno-server\\storage\\projects\\1eaeabc6f5b14257b8060d6115a84db3\\sistema\\.venv-1\\Scripts\\python.exe",
       "sistema/app.py"
     ],
     "port": 5001,
@@ -54,10 +54,10 @@
     "category": "Vendas",
     "icon": "Settings",
     "type": "local",
-    "sourceFolder": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno\\storage\\projects\\1f002104eff64f4c8beb227e2e0d8fce",
-    "workDir": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno\\storage\\projects\\1f002104eff64f4c8beb227e2e0d8fce",
+    "sourceFolder": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno-server\\storage\\projects\\1f002104eff64f4c8beb227e2e0d8fce",
+    "workDir": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno-server\\storage\\projects\\1f002104eff64f4c8beb227e2e0d8fce",
     "startCommand": [
-      "python.exe",
+      "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno-server\\storage\\projects\\1f002104eff64f4c8beb227e2e0d8fce\\.portal-venv\\Scripts\\python.exe",
       "app.py"
     ],
     "port": 5000,
@@ -75,10 +75,10 @@
     "category": "Produtividade",
     "icon": "FileImage",
     "type": "local",
-    "sourceFolder": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno\\storage\\projects\\708cd81416994ce3b3f826263d4813a8",
-    "workDir": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno\\storage\\projects\\708cd81416994ce3b3f826263d4813a8",
+    "sourceFolder": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno-server\\storage\\projects\\708cd81416994ce3b3f826263d4813a8",
+    "workDir": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno-server\\storage\\projects\\708cd81416994ce3b3f826263d4813a8",
     "startCommand": [
-      "python.exe",
+      "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno-server\\storage\\projects\\708cd81416994ce3b3f826263d4813a8\\.portal-venv\\Scripts\\python.exe",
       "app.py"
     ],
     "port": 8001,
@@ -109,10 +109,10 @@
     "category": "Dados",
     "icon": "Boxes",
     "type": "local",
-    "sourceFolder": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno\\storage\\projects\\72cb478eaceb4e67823cc7c9ef57aeae",
-    "workDir": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno\\storage\\projects\\72cb478eaceb4e67823cc7c9ef57aeae",
+    "sourceFolder": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno-server\\storage\\projects\\72cb478eaceb4e67823cc7c9ef57aeae",
+    "workDir": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno-server\\storage\\projects\\72cb478eaceb4e67823cc7c9ef57aeae",
     "startCommand": [
-      "python.exe",
+      "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno-server\\storage\\projects\\72cb478eaceb4e67823cc7c9ef57aeae\\.venv-1\\Scripts\\python.exe",
       "app.py"
     ],
     "status": "published",
