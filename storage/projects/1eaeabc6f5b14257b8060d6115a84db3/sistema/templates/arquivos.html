@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#171717">
+  <title>Arquivos enviados · Inventário</title>
+  <script>
+    try {
+      if (localStorage.getItem("inventario-tema") === "escuro") {
+        document.documentElement.dataset.theme = "dark";
+      }
+    } catch {}
+  </script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=8) }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand" aria-label="Fundação Casa de José Américo, Inventário">
+      <img class="brand-logo" src="{{ url_for('static', filename='logo-fcja-2026.jpeg') }}" alt="Fundação Casa de José Américo">
+      <span class="brand-name">INVENTÁRIO</span>
+    </div>
+    <nav class="topbar-navigation" aria-label="Navegação principal">
+      <a class="topbar-link" href="{{ url_for('inicio') }}">Acervo</a>
+      <a class="topbar-link is-active" href="{{ url_for('arquivos_enviados') }}">Arquivos enviados</a>
+    </nav>
+    <button class="theme-toggle" id="alternar-tema" type="button" aria-label="Ativar modo escuro" aria-pressed="false">
+      <span aria-hidden="true">☾</span> <span class="theme-toggle-label">Modo escuro</span>
+    </button>
+  </header>
+
+  <main class="page-shell files-page">
+    <section class="page-heading">
+      <div>
+        <p class="eyebrow">HISTÓRICO DO SISTEMA</p>
+        <h1>Arquivos enviados</h1>
+      </div>
+    </section>
+
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+      {% if mensagens %}
+        <div class="notices" aria-live="polite">
+          {% for categoria, mensagem in mensagens %}
+            <p class="notice notice-{{ categoria }}">{{ mensagem }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <section class="file-upload-panel" aria-labelledby="envio-titulo">
+      <div>
+        <h2 id="envio-titulo">Enviar arquivo</h2>
+        <p>Os arquivos são guardados no sistema. Todos os formatos podem ser baixados; CSV e Excel (.xlsx) também podem ser visualizados e editados.</p>
+      </div>
+      <form class="file-upload-form" method="post" action="{{ url_for('enviar_planilha') }}" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label class="visually-hidden" for="arquivo-enviado">Escolha um arquivo</label>
+        <input class="file-input" id="arquivo-enviado" name="arquivo" type="file" required>
+        <button class="button button-primary" type="submit">Enviar e salvar</button>
+      </form>
+    </section>
+
+    <section class="files-history" aria-labelledby="historico-titulo">
+      <div class="section-title">
+        <h2 id="historico-titulo">Arquivos ativos</h2>
+        <span class="result-count">{{ arquivos|length }} arquivo(s)</span>
+      </div>
+      {% if arquivos %}
+        <ul class="spreadsheet-list">
+          {% for arquivo in arquivos %}
+            {% set extensao = arquivo['nome'].rsplit('.', 1)[-1].lower() if '.' in arquivo['nome'] else '' %}
+            <li class="file-history-row">
+              <div class="file-history-info">
+                <strong>{{ arquivo['nome'] }}</strong>
+                <span>{{ arquivo['criado_em'] }} · {{ arquivo['tamanho']|tamanho }}</span>
+              </div>
+              <div class="spreadsheet-actions">
+                {% if extensao in ['csv', 'xlsx'] %}
+                  <a class="button button-secondary" href="{{ url_for('visualizar_planilha', planilha_id=arquivo['id']) }}">Ver / editar</a>
+                {% endif %}
+                <a class="button button-secondary" href="{{ url_for('baixar_planilha', planilha_id=arquivo['id']) }}">Baixar</a>
+                <form method="post" action="{{ url_for('excluir_planilha', planilha_id=arquivo['id']) }}" data-confirmar="Excluir este arquivo enviado? Esta ação não pode ser desfeita.">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                  <button class="button button-remove spreadsheet-delete" type="submit">Excluir</button>
+                </form>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="spreadsheet-empty">Nenhum arquivo enviado ainda.</p>
+      {% endif %}
+    </section>
+
+    <section class="files-history deletion-history" aria-labelledby="produtos-adicionados-titulo">
+      <div class="section-title">
+        <h2 id="produtos-adicionados-titulo">Produtos adicionados</h2>
+        <span class="result-count">{{ produtos_adicionados|length }} produto(s)</span>
+      </div>
+      {% if produtos_adicionados %}
+        <ul class="spreadsheet-list">
+          {% for produto in produtos_adicionados %}
+            <li class="file-history-row">
+              <div class="file-history-info">
+                <strong>{{ produto['nome'] }}</strong>
+                <span>
+                  {{ produto['tipo'] }}{% if produto['categoria'] %} · {{ produto['categoria'] }}{% endif %}
+                  {% if produto['autor'] %} · {{ produto['autor'] }}{% endif %}
+                  · {{ produto['quantidade'] }} exemplar(es)
+                  {% if produto['data_insercao'] %} · Data da inserção: {{ produto['data_insercao']|data_br }}{% endif %}
+                  {% if produto['tipo'] == 'Cordel' %}
+                    {% if produto['imagem_capa'] %}<img class="cordel-cover cordel-cover-history" src="{{ url_for('capa_cordel', nome_arquivo=produto['imagem_capa']) }}" alt="Capa do cordel: {{ produto['nome'] }}">{% endif %}
+                    {% if produto['edicao'] %} · Edição: {{ produto['edicao'] }}{% endif %}
+                    {% if produto['editora'] %} · Editora: {{ produto['editora'] }}{% endif %}
+                    {% if produto['local'] %} · Local: {{ produto['local'] }}{% endif %}
+                    {% if produto['ano'] %} · Ano: {{ produto['ano'] }}{% endif %}
+                    {% if produto['tema'] %} · Tema: {{ produto['tema'] }}{% endif %}
+                    {% if produto['notas'] %} · Notas: {{ produto['notas'] }}{% endif %}
+                  {% elif produto['tipo'] == 'Periodico' %}
+                    {% if produto['volume_ano_periodo'] %} · Volume/Ano/Período: {{ produto['volume_ano_periodo'] }}{% endif %}
+                    {% if produto['edicao_fasciculo'] %} · Edição/Fascículo: {{ produto['edicao_fasciculo'] }}{% endif %}
+                    {% if produto['numero'] %} · Número: {{ produto['numero'] }}{% endif %}
+                    {% if produto['periodicidade'] %} · Periodicidade: {{ produto['periodicidade'] }}{% endif %}
+                    {% if produto['ano_publicacao'] %} · Ano de Publicação: {{ produto['ano_publicacao'] }}{% endif %}
+                  {% else %}
+                    {% if produto['ano'] %} · Ano: {{ produto['ano'] }}{% endif %}
+                    {% if produto['edicao'] %} · Edição: {{ produto['edicao'] }}{% endif %}
+                    {% if produto['volume'] %} · Volume: {{ produto['volume'] }}{% endif %}
+                    {% if produto['tipologia_material'] %} · Tipologia do Material: {{ produto['tipologia_material'] }}{% endif %}
+                  {% endif %}
+                  {% if produto['possui_carimbo'] %} · Possui Carimbo: {{ produto['possui_carimbo'] }}{% endif %}
+                  {% if produto['numero_caixa'] %} · Número da Caixa: {{ produto['numero_caixa'] }}{% endif %}
+                  {% if produto['observacoes'] %} · Observações: {{ produto['observacoes'] }}{% endif %}
+                  · {% if produto['adicionado_em'] %}Adicionado: {{ produto['adicionado_em'] }}{% else %}Data de adição não registrada{% endif %}
+                </span>
+              </div>
+              <span class="deleted-file-label">Produto adicionado</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="spreadsheet-empty">Nenhum produto adicionado ainda.</p>
+      {% endif %}
+    </section>
+
+    <section class="files-history deletion-history" aria-labelledby="exclusoes-titulo">
+      <div class="section-title">
+        <h2 id="exclusoes-titulo">Histórico de exclusões</h2>
+        <span class="result-count">{{ exclusoes|length }} arquivo(s) excluído(s)</span>
+      </div>
+      {% if exclusoes %}
+        <ul class="spreadsheet-list">
+          {% for exclusao in exclusoes %}
+            <li class="file-history-row deleted-file-row">
+              <div class="file-history-info">
+                <strong>{{ exclusao['nome'] }}</strong>
+                <span>Enviado: {{ exclusao['enviado_em'] }} · Excluído: {{ exclusao['excluido_em'] }} · {{ exclusao['tamanho']|tamanho }}</span>
+              </div>
+              <span class="deleted-file-label">Arquivo excluído</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="spreadsheet-empty">Nenhum arquivo excluído ainda.</p>
+      {% endif %}
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>Desenvolvedor:</span>
+    <strong>Gabriel Bruno Costa De Lima</strong>
+  </footer>
+
+  <script>
+    document.querySelectorAll("form[data-confirmar]").forEach((formulario) => {
+      formulario.addEventListener("submit", (evento) => {
+        if (!window.confirm(formulario.dataset.confirmar)) evento.preventDefault();
+      });
+    });
+
+    const alternarTema = document.querySelector("#alternar-tema");
+    const corDoNavegador = document.querySelector('meta[name="theme-color"]');
+    const atualizarTema = (escuro) => {
+      document.documentElement.dataset.theme = escuro ? "dark" : "light";
+      corDoNavegador.content = escuro ? "#100d0e" : "#171717";
+      alternarTema.setAttribute("aria-pressed", String(escuro));
+      alternarTema.setAttribute("aria-label", escuro ? "Ativar modo claro" : "Ativar modo escuro");
+      alternarTema.querySelector(".theme-toggle-label").textContent = escuro ? "Modo claro" : "Modo escuro";
+      alternarTema.querySelector("[aria-hidden]").textContent = escuro ? "☀" : "☾";
+      try {
+        localStorage.setItem("inventario-tema", escuro ? "escuro" : "claro");
+      } catch {}
+    };
+    atualizarTema(document.documentElement.dataset.theme === "dark");
+    alternarTema.addEventListener("click", () => {
+      atualizarTema(document.documentElement.dataset.theme !== "dark");
+    });
+  </script>
+</body>
+</html>

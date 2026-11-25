@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card content-panel p-4">
+    <div class="page-header compact">
+        <div>
+            <span class="eyebrow">Cadastros</span>
+            <h1 class="page-title">Pessoas</h1>
+            <p class="page-subtitle">Gerencie as pessoas cadastradas no sistema.</p>
+            <span class="result-count">{{ pessoas|length }} registro(s) encontrado(s)</span>
+        </div>
+        <a href="{{ url_for('add_pessoa') }}" class="btn btn-danger">+ Nova pessoa</a>
+    </div>
+
+    <form class="search-form mb-4" action="{{ url_for('pessoas') }}" method="GET" autocomplete="off">
+        <div class="input-group">
+            <input type="text" name="q" class="form-control" placeholder="Buscar por nome, email ou telefone..." value="{{ request.args.get('q') or '' }}" autocomplete="off">
+            <button class="btn btn-danger" type="submit">Buscar <span aria-hidden="true">⌕</span></button>
+        </div>
+    </form>
+
+    <div class="bulk-actions-row mb-3">
+        <div id="botaoExcluirPessoas" class="bulk-actions">
+            <button type="submit" form="form-excluir-pessoas" class="btn btn-danger" disabled>
+                Excluir selecionados
+            </button>
+        </div>
+        <div id="botaoEmailPessoas" class="bulk-actions bulk-email">
+            <button onclick="enviarEmailsPessoas()" class="btn btn-primary">
+                Enviar e-mail para selecionados
+            </button>
+        </div>
+</div>
+
+<form id="form-excluir-pessoas" method="POST" action="{{ url_for('delete_selected_pessoas') }}"
+      onsubmit="return confirm('Excluir as pessoas selecionadas?')">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+</form>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th class="text-center selection-column">
+                        <input type="checkbox"
+                               id="selecionarTodosPessoas"
+                               onclick="selecionarTodosPessoas()">
+                    </th>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Telefone</th>
+                    <th>Cargo</th>
+                    <th class="text-center">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in pessoas %}
+                <tr>
+                    <td>
+                        <input type="checkbox"
+                               name="pessoa_ids"
+                               value="{{ p.id }}"
+                               data-email="{{ p.email or '' }}"
+                               form="form-excluir-pessoas"
+                               onchange="atualizarBotaoPessoas()">
+                    </td>
+                    <td><strong>{{ p.nome }}</strong></td>
+                    <td>{{ p.email }}</td>
+                    <td>{{ p.telefone or 'Não informado' }}</td>
+                    <td><span class="badge bg-secondary">{{ p.cargo or 'N/A' }}</span></td>
+                    <td class="text-center table-actions">
+                        <div>
+                            <a href="{{ url_for('view_pessoa', id=p.id) }}" class="btn btn-sm btn-info text-white">Ver detalhes</a>
+                            {% if p.email %}
+                            <a href="https://mail.google.com/mail/?view=cm&to={{ p.email }}" target="_blank" class="btn btn-sm btn-success">Email</a>
+                            {% endif %}
+                        </div>
+                        <div class="mt-1">
+                            <a href="{{ url_for('edit_pessoa', id=p.id) }}" class="btn btn-sm btn-warning">Editar</a>
+                            <form method="POST" action="{{ url_for('delete_pessoa', id=p.id) }}" class="d-inline" onsubmit="return confirm('Excluir?')">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-sm btn-danger">Excluir</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center py-5">
+                        <span class="empty-icon" aria-hidden="true">◎</span>
+                        <strong class="d-block mb-1">Nenhuma pessoa cadastrada</strong>
+                        <span class="page-subtitle">Cadastre uma nova pessoa para começar.</span>
+                        <a href="{{ url_for('add_pessoa') }}" class="btn btn-danger mt-3">Cadastrar pessoa</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+function selecionarTodosPessoas() {
+    let marcar = document.getElementById("selecionarTodosPessoas").checked;
+    let checkboxes = document.querySelectorAll('input[name="pessoa_ids"]');
+
+    checkboxes.forEach(cb => {
+        cb.checked = marcar;
+    });
+
+    atualizarBotaoPessoas();
+}
+
+function atualizarBotaoPessoas() {
+    let selecionados = document.querySelectorAll('input[name="pessoa_ids"]:checked');
+    let botao = document.getElementById("botaoEmailPessoas");
+    let botaoExcluir = document.getElementById("botaoExcluirPessoas");
+    let acaoExcluir = botaoExcluir ? botaoExcluir.querySelector('button') : null;
+
+    if (botao) {
+        botao.style.display = selecionados.length > 0 ? "block" : "none";
+    }
+    if (botaoExcluir) {
+        acaoExcluir.disabled = selecionados.length === 0;
+    }
+}
+
+function enviarEmailsPessoas() {
+    let checkboxes = document.querySelectorAll('input[name="pessoa_ids"]:checked');
+    let emails = [];
+
+    checkboxes.forEach(cb => {
+        if (cb.dataset.email) {
+            emails.push(cb.dataset.email);
+        }
+    });
+
+    if (emails.length > 0) {
+        let url = "https://mail.google.com/mail/?view=cm&fs=1&bcc=" + emails.join(",");
+        window.open(url, "_blank");
+    } else {
+        alert("Selecione pelo menos uma pessoa.");
+    }
+}
+
+</script>
+{% endblock %}

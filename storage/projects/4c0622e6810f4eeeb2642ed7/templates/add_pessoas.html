@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card content-panel p-4">
+    <nav class="breadcrumb-nav" aria-label="Navegação estrutural"><a href="{{ url_for('cadastros') }}">Cadastros</a><span>›</span><a href="{{ url_for('pessoas') }}">Pessoas</a><span>›</span><strong>Nova pessoa</strong></nav>
+    <div class="form-heading"><span class="eyebrow">Novo registro</span><h1 class="page-title">Cadastrar pessoa</h1><p class="page-subtitle">Adicione um autor, leitor ou parceiro ao catálogo da biblioteca.</p></div>
+    {% if erro %}<div class="alert alert-danger">{{ erro }}</div>{% endif %}
+
+    <form method="POST" action="{{ url_for('add_pessoa') }}"
+          onsubmit="this.querySelector('button[type=submit]').disabled=true;
+                    this.querySelector('button[type=submit]').innerText='Salvando...';">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="row g-4">
+            <div class="col-md-12">
+                <label class="form-label fw-bold">Nome completo <span class="required-mark">*</span></label>
+                <input type="text" name="nome" class="form-control" required>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-bold">E-mail</label>
+                <input type="email" name="email" class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Telefone</label>
+                <input type="text" name="telefone" class="form-control">
+            </div>
+
+            <div class="col-md-12">
+                <label class="form-label fw-bold">Endereço</label>
+                <input type="text" name="endereco" class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Instagram</label>
+                <input type="text" name="instagram" class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Cargo</label>
+                <input type="text" name="cargo" class="form-control">
+            </div>
+
+            <div class="col-md-12">
+                <label class="form-label fw-bold">Observação</label>
+                <textarea name="observacao" class="form-control" rows="3"></textarea>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-danger px-5">
+                Salvar Pessoa
+            </button>
+
+            <a href="{{ url_for('pessoas') }}" class="btn btn-outline-secondary ms-2">
+                Cancelar
+            </a>
+        </div>
+    </form>
+
+</div>
+
+{% endblock %}

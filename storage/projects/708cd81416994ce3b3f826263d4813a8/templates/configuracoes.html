@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block titulo %}Configurações{% endblock %}
+{% block conteudo %}
+<section class="cabecalho-pagina">
+  <div>
+    <h1>Configurações</h1>
+    <p class="texto-suave">Marca d'água e parâmetros de processamento.</p>
+  </div>
+</section>
+
+<form method="post" class="formulario">
+<div class="grade-duas">
+
+  <section class="painel">
+    <div class="painel-cabecalho"><h2>Marca d'água</h2></div>
+    <div class="config-logo">
+      <img src="{{ url_for('static', filename='img/marca-dagua.png') }}"
+           alt="Imagem utilizada como marca d'água" class="config-logo-img">
+      <div>
+        <strong>marca-dagua.png</strong>
+        <p class="texto-suave">Marca d'água institucional da FCJA (logo com o
+          nome da fundação). A proporção original é sempre preservada.</p>
+      </div>
+    </div>
+
+    <div class="campo">
+      <label for="wm_posicao">Posição</label>
+      <select id="wm_posicao" name="wm_posicao">
+        {% for chave, rotulo in posicoes.items() %}
+        <option value="{{ chave }}" {% if cfg.wm_posicao == chave %}selected{% endif %}>{{ rotulo }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="linha-campos">
+      <div class="campo">
+        <label for="wm_tamanho_modo">Tamanho</label>
+        <select id="wm_tamanho_modo" name="wm_tamanho_modo">
+          <option value="automatico" {% if cfg.wm_tamanho_modo == 'automatico' %}selected{% endif %}>Automático</option>
+          <option value="fixo" {% if cfg.wm_tamanho_modo == 'fixo' %}selected{% endif %}>Fixo</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label for="wm_tamanho_percentual">Percentual da largura</label>
+        <input type="number" id="wm_tamanho_percentual" name="wm_tamanho_percentual"
+               min="1" max="50" step="0.5" value="{{ cfg.wm_tamanho_percentual }}">
+      </div>
+    </div>
+    <div class="linha-campos">
+      <div class="campo">
+        <label for="wm_tamanho_minimo_px">Mínimo (px)</label>
+        <input type="number" id="wm_tamanho_minimo_px" name="wm_tamanho_minimo_px"
+               min="10" max="2000" value="{{ cfg.wm_tamanho_minimo_px }}">
+      </div>
+      <div class="campo">
+        <label for="wm_tamanho_maximo_px">Máximo (px)</label>
+        <input type="number" id="wm_tamanho_maximo_px" name="wm_tamanho_maximo_px"
+               min="50" max="5000" value="{{ cfg.wm_tamanho_maximo_px }}">
+      </div>
+      <div class="campo">
+        <label for="wm_tamanho_fixo_px">Fixo (px)</label>
+        <input type="number" id="wm_tamanho_fixo_px" name="wm_tamanho_fixo_px"
+               min="20" max="5000" value="{{ cfg.wm_tamanho_fixo_px }}">
+      </div>
+    </div>
+
+    <div class="linha-campos">
+      <div class="campo">
+        <label for="wm_margem_modo">Margem</label>
+        <select id="wm_margem_modo" name="wm_margem_modo">
+          <option value="automatico" {% if cfg.wm_margem_modo == 'automatico' %}selected{% endif %}>Automática</option>
+          <option value="fixo" {% if cfg.wm_margem_modo == 'fixo' %}selected{% endif %}>Fixa</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label for="wm_margem_percentual">Percentual da página</label>
+        <input type="number" id="wm_margem_percentual" name="wm_margem_percentual"
+               min="0" max="20" step="0.5" value="{{ cfg.wm_margem_percentual }}">
+      </div>
+      <div class="campo">
+        <label for="wm_margem_fixa_px">Fixa (px)</label>
+        <input type="number" id="wm_margem_fixa_px" name="wm_margem_fixa_px"
+               min="0" max="2000" value="{{ cfg.wm_margem_fixa_px }}">
+      </div>
+    </div>
+
+    <div class="campo">
+      <label for="wm_opacidade">Opacidade (0 a 100)</label>
+      <input type="number" id="wm_opacidade" name="wm_opacidade"
+             min="0" max="100" value="{{ cfg.wm_opacidade }}">
+      <small class="ajuda">Padrão: 85%. Valores baixos deixam a logo mais
+        discreta sobre o texto.</small>
+    </div>
+  </section>
+
+  <section class="painel">
+    <div class="painel-cabecalho"><h2>Processamento</h2></div>
+    <div class="campo">
+      <label for="proc_formato_saida">Formato de saída</label>
+      <select id="proc_formato_saida" name="proc_formato_saida">
+        {% for chave, rotulo in formatos.items() %}
+        <option value="{{ chave }}" {% if cfg.proc_formato_saida == chave %}selected{% endif %}>{{ rotulo }}</option>
+        {% endfor %}
+      </select>
+      <small class="ajuda">"Manter original" preserva TIFF como TIFF,
+        PNG como PNG e JPEG como JPEG.</small>
+    </div>
+    <div class="campo">
+      <label for="proc_qualidade_jpeg">Qualidade JPEG (1 a 100)</label>
+      <input type="number" id="proc_qualidade_jpeg" name="proc_qualidade_jpeg"
+             min="1" max="100" value="{{ cfg.proc_qualidade_jpeg }}">
+      <small class="ajuda">Padrão: 95. Afeta apenas saídas JPEG.</small>
+    </div>
+    <div class="campo campo-check">
+      <input type="checkbox" id="proc_preservar_resolucao"
+             name="proc_preservar_resolucao" value="1"
+             {% if cfg.proc_preservar_resolucao == '1' %}checked{% endif %}>
+      <label for="proc_preservar_resolucao">Preservar resolução / DPI original</label>
+    </div>
+    <div class="campo">
+      <label for="proc_dimensao_maxima">Dimensão máxima (0 = ilimitado)</label>
+      <input type="number" id="proc_dimensao_maxima" name="proc_dimensao_maxima"
+             min="0" max="50000" value="{{ cfg.proc_dimensao_maxima }}">
+      <small class="ajuda">Deixe 0 para nunca redimensionar (recomendado
+        para preservação).</small>
+    </div>
+
+    <div class="aviso-preservacao">
+      <strong>⚠ Regras de preservação</strong>
+      <ul>
+        <li>Imagens 4000×6000 permanecem 4000×6000 — a marca d'água é
+            adicionada sem redimensionar a página.</li>
+        <li>TIFF não é convertido automaticamente para JPEG.</li>
+        <li>O arquivo original nunca é sobrescrito.</li>
+      </ul>
+    </div>
+  </section>
+</div>
+
+<div class="acoes-formulario">
+  <button type="submit" class="botao botao-primario">Salvar configurações</button>
+  <a href="{{ url_for('dashboard.index') }}" class="botao botao-contorno">Cancelar</a>
+</div>
+</form>
+{% endblock %}

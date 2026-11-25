@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Executar inventário web",
+			"type": "shell",
+			"command": "c:/Users/tipri/Desktop/sistema/.venv-1/Scripts/python.exe",
+			"args": [
+				"app.py"
+			],
+			"isBackground": true,
+			"problemMatcher": []
+		}
+	]
+}

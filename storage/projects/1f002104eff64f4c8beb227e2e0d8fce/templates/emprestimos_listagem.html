@@ -1,0 +1,141 @@
+{% extends "base_admin.html" %} {% block title %}Empréstimos{% endblock %} {%
+block content %}
+
+<div class="emprestimos-container">
+  <div class="emprestimos-header">
+    <h1>Listagem de Empréstimos</h1>
+  </div>
+
+  <div class="emprestimos-actions">
+    <button id="btnExportar" class="btn-exportar">Exportar</button>
+  </div>
+
+  <table class="emprestimos-tabela">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Título</th>
+        <th>Autor</th>
+        <th>Prazo</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="tabelaEmprestimos"></tbody>
+  </table>
+  <div class="paginacao">
+    <button id="paginaAnterior" class="btn-pagina">←</button>
+    <button id="proximaPagina" class="btn-pagina">→</button>
+  </div>
+  <div id="modalDetalhes" class="modal-overlay">
+    <div class="modal-conteudo">
+      <div class="modal-header">
+        <h2>Detalhes do Empréstimo</h2>
+        <button onclick="fecharModal()" class="btn-sair">Sair</button>
+      </div>
+
+      <h3>Dados do Usuário</h3>
+
+      <div class="linha">
+        <div class="campo grande">
+          <label>Nome</label>
+          <input id="detNome" readonly />
+        </div>
+
+        <div class="campo grande">
+          <label>Email</label>
+          <input id="detEmail" readonly />
+        </div>
+      </div>
+
+      <div class="linha">
+        <div class="campo">
+          <label>Telefone</label>
+          <input id="detTelefone" readonly />
+        </div>
+
+        <div class="campo">
+          <label>Endereço</label>
+          <input id="detEndereco" readonly />
+        </div>
+      </div>
+
+      <div class="linha">
+        <div class="campo">
+          <label>Matrícula</label>
+          <input id="detMatricula" readonly />
+        </div>
+
+        <div class="campo">
+          <label>Tipo</label>
+          <input id="detTipo" readonly />
+        </div>
+
+        <div class="campo">
+          <label>Setor</label>
+          <input id="detSetor" readonly />
+        </div>
+      </div>
+
+      <h3>Dados do Livro</h3>
+
+      <div class="linha">
+        <div class="campo grande">
+          <label>Título</label>
+          <input id="detTitulo" readonly />
+        </div>
+
+        <div class="campo grande">
+          <label>Autor</label>
+          <input id="detAutor" readonly />
+        </div>
+      </div>
+
+      <div class="linha">
+        <div class="campo">
+          <label>Editora</label>
+          <input id="detEditora" readonly />
+        </div>
+
+        <div class="campo">
+          <label>Edição</label>
+          <input id="detEdicao" readonly />
+        </div>
+
+        <div class="campo">
+          <label>Local</label>
+          <input id="detLocal" readonly />
+        </div>
+
+        <div class="campo">
+          <label>Origem</label>
+          <input id="detOrigem" readonly />
+        </div>
+      </div>
+
+      <div class="linha">
+        <div class="campo">
+          <label>Ano</label>
+          <input id="detAno" readonly />
+        </div>
+      </div>
+
+      <div class="linha">
+        <div class="campo grande">
+          <label>Observação</label>
+          <textarea id="detObs" readonly></textarea>
+        </div>
+      </div>
+
+      <div class="linha">
+        <div class="campo">
+          <label>Prazo Devolução</label>
+          <input id="detPrazo" readonly />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/static/js/emprestimos_listagem.js"></script>
+
+{% endblock %}

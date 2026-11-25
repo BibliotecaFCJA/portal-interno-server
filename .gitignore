@@ -1,0 +1,22 @@
+node_modules
+.next
+tsconfig.tsbuildinfo
+
+# Segredos e configs locais
+.env
+.env.local
+.env*.local
+*.pem
+*.key
+
+# Dados gerados localmente (contém caminhos internos da máquina)
+
+
+# Scripts de inicialização locais (só desta máquina)
+iniciar.sh
+iniciar.cmd
+
+# Logs e lixo comum
+*.log
+.DS_Store
+Thumbs.db

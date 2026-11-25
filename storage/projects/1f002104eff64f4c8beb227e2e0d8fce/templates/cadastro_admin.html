@@ -1,0 +1,24 @@
+{% extends "base_public.html" %} {% block title %}Cadastro de Administrador{%
+endblock %} {% block content %}
+
+<div class="login-container">
+  <img src="{{ url_for('static', filename='img/logo.png') }}" width="400" />
+
+  <h3>EMPRESTIMO-CADASTRO</h3>
+
+  <div class="login-card">
+    <h2>Cadastro</h2>
+
+    <form id="formCadastroAdmin">
+      <input type="nome" name="nome" placeholder="Nome" required />
+      <input type="email" name="email" placeholder="E-mail" required />
+      <input type="password" name="senha" placeholder="Senha" required />
+
+      <button type="submit">Cadastrar</button>
+    </form>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+
+{% endblock %}

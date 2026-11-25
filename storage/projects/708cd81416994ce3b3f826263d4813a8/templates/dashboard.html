@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block titulo %}Dashboard{% endblock %}
+{% block conteudo %}
+<section class="cabecalho-pagina">
+  <div>
+    <h1>Olá, {{ usuario['nome'].split(' ')[0] }}</h1>
+    <p class="texto-suave">Gerencie as obras digitalizadas do acervo.</p>
+  </div>
+  <a href="{{ url_for('obras.nova') }}" class="botao botao-primario">+ Nova obra</a>
+</section>
+
+<section class="grade-cartoes" aria-label="Estatísticas do acervo">
+  <div class="cartao-estatistica">
+    <span class="numero">{{ stats.total_obras }}</span>
+    <span class="rotulo">Obras</span>
+  </div>
+  <div class="cartao-estatistica">
+    <span class="numero">{{ stats.obras_processadas }}</span>
+    <span class="rotulo">Processadas</span>
+  </div>
+  <div class="cartao-estatistica">
+    <span class="numero">{{ stats.obras_pendentes }}</span>
+    <span class="rotulo">Pendentes</span>
+  </div>
+  <div class="cartao-estatistica">
+    <span class="numero">{{ stats.total_paginas }}</span>
+    <span class="rotulo">Páginas digitalizadas</span>
+  </div>
+</section>
+
+<section class="painel">
+  <div class="painel-cabecalho">
+    <h2>Obras recentes</h2>
+    <a href="{{ url_for('obras.lista') }}" class="link">Ver todas →</a>
+  </div>
+  {% if obras_recentes %}
+  <div class="tabela-rolagem">
+    <table class="tabela">
+      <thead>
+        <tr>
+          <th scope="col">Código</th>
+          <th scope="col">Título</th>
+          <th scope="col">Autor</th>
+          <th scope="col">Páginas</th>
+          <th scope="col">Status</th>
+          <th scope="col">Data</th>
+          <th scope="col"><span class="sr-only">Ações</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for obra in obras_recentes %}
+        <tr>
+          <td><code class="codigo">{{ obra['codigo'] }}</code></td>
+          <td class="celula-titulo">{{ obra['titulo'] }}</td>
+          <td>{{ obra['autor'] or '—' }}</td>
+          <td>{{ obra['quantidade_paginas'] }}</td>
+          <td>
+            {% set s = obra['status'] %}
+            <span class="etiqueta etiqueta-{{ s }}">
+              {% if s == 'processada' %}✓{% elif s == 'processando' %}◐{% elif s == 'parcial' %}◑{% elif s == 'erro' %}✕{% else %}…{% endif %}
+              {{ rotulos_status.get(s, s) if rotulos_status else s }}
+            </span>
+          </td>
+          <td>{{ obra['data_cadastro'] | data_br_simples }}</td>
+          <td class="celula-acoes">
+            <a class="botao botao-pequeno botao-contorno"
+               href="{{ url_for('obras.detalhes', obra_id=obra['id']) }}">Detalhes</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="estado-vazio">
+    <p>Nenhuma obra cadastrada ainda.</p>
+    <a href="{{ url_for('obras.nova') }}" class="botao botao-primario">Cadastrar primeira obra</a>
+  </div>
+  {% endif %}
+</section>
+
+<section class="painel">
+  <div class="painel-cabecalho">
+    <h2>Atividades recentes</h2>
+    <a href="{{ url_for('logs') }}" class="link">Ver tudo →</a>
+  </div>
+  <ul class="lista-logs">
+    {% for log in logs %}
+    <li>
+      <span class="log-data">{{ log['data'] | data_br }}</span>
+      <span class="log-usuario">{{ log['usuario'] }}</span>
+      <span class="log-acao">{{ log['acao'] }}</span>
+      <span class="log-detalhes texto-suave">{{ log['detalhes'] }}</span>
+    </li>
+    {% else %}
+    <li class="texto-suave">Sem registros de atividades.</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}

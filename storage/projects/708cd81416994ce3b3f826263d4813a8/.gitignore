@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Ambiente e segredos (nunca versionar)
+.env
+
+# Dados locais do sistema (banco e acervo digitalizado)
+instance/*
+!instance/.gitkeep
+uploads/*
+!uploads/.gitkeep
+
+# Testes e ferramentas
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Sistema operacional / editores
+.DS_Store
+Thumbs.db
+*.swp
+
+# Logs de execução
+*.log

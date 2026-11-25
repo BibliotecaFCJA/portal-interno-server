@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#171717">
+  <title>Inventário</title>
+  <script>
+    try {
+      if (localStorage.getItem("inventario-tema") === "escuro") {
+        document.documentElement.dataset.theme = "dark";
+      }
+    } catch {}
+  </script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=8) }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand" aria-label="Fundação Casa de José Américo, Inventário">
+      <img class="brand-logo" src="{{ url_for('static', filename='logo-fcja-2026.jpeg') }}" alt="Fundação Casa de José Américo">
+      <span class="brand-name">INVENTÁRIO</span>
+    </div>
+    <nav class="topbar-navigation" aria-label="Navegação principal">
+      <a class="topbar-link is-active" href="{{ url_for('inicio') }}">Acervo</a>
+      <a class="topbar-link" href="{{ url_for('arquivos_enviados') }}">Arquivos enviados</a>
+    </nav>
+    <button class="theme-toggle" id="alternar-tema" type="button" aria-label="Ativar modo escuro" aria-pressed="false">
+      <span aria-hidden="true">☾</span> <span class="theme-toggle-label">Modo escuro</span>
+    </button>
+  </header>
+
+  <main class="page-shell">
+    <section class="page-heading">
+      <div>
+        <h1>Acervo</h1>
+      </div>
+      <div class="heading-actions">
+        <a class="button button-secondary" href="{{ url_for('arquivos_enviados') }}">Arquivos enviados</a>
+        <button class="button button-primary" type="button" id="abrir-cadastro">
+          <span aria-hidden="true">+</span> Adicionar produto
+        </button>
+      </div>
+    </section>
+
+    <section class="summary" aria-label="Resumo do estoque">
+      <div class="summary-item">
+        <span>Produtos cadastrados</span>
+        <strong>{{ resumo['produtos'] }}</strong>
+      </div>
+      <div class="summary-item">
+        <span>Unidades em estoque</span>
+        <strong>{{ resumo['unidades'] }}</strong>
+      </div>
+    </section>
+
+    <section class="spreadsheets-section" aria-labelledby="planilhas-titulo">
+      <div class="section-title">
+        <h2 id="planilhas-titulo">Arquivos enviados</h2>
+        <span class="result-count">{{ planilhas|length }} arquivo(s) salvos</span>
+      </div>
+      <p class="spreadsheet-empty">
+        Os arquivos enviados ficam salvos no sistema.
+        <a href="{{ url_for('arquivos_enviados') }}">Abrir histórico de arquivos</a>
+      </p>
+    </section>
+
+    <section class="inventory-section" aria-labelledby="lista-titulo">
+      <div class="inventory-toolbar">
+        <div class="section-title">
+          <h2 id="lista-titulo">Produtos</h2>
+          <span class="result-count">{{ produtos|length }} exibido(s)</span>
+        </div>
+        <form class="search-form" method="get" action="{{ url_for('inicio') }}">
+          <label class="visually-hidden" for="busca">Buscar produtos</label>
+          <input id="busca" name="q" type="search" value="{{ termo }}" placeholder="Título, autor ou categoria">
+          {% if termo %}
+            <a class="clear-search" href="{{ url_for('inicio') }}" aria-label="Limpar busca">×</a>
+          {% endif %}
+          <button class="button button-search" type="submit">Buscar</button>
+        </form>
+      </div>
+
+      {% with mensagens = get_flashed_messages(with_categories=true) %}
+        {% if mensagens %}
+          <div class="notices" aria-live="polite">
+            {% for categoria, mensagem in mensagens %}
+              <p class="notice notice-{{ categoria }}">{{ mensagem }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      {% if produtos %}
+        <div class="product-table">
+          <div class="table-heading" aria-hidden="true">
+            <span>Produto</span>
+            <span>Categoria</span>
+            <span>Unidades</span>
+            <span>Ações</span>
+          </div>
+          {% for produto in produtos %}
+            <article class="product-row">
+              <div class="product-name">
+                <span class="item-type">{{ produto['tipo'] }}</span>
+                {% if produto['tipo'] == 'Cordel' and produto['imagem_capa'] %}
+                  <img class="cordel-cover" src="{{ url_for('capa_cordel', nome_arquivo=produto['imagem_capa']) }}" alt="Capa do cordel: {{ produto['nome'] }}">
+                {% endif %}
+                <strong>{{ produto['nome'] }}</strong>
+                {% if produto['autor'] %}<span class="item-author">por {{ produto['autor'] }}</span>{% endif %}
+                {% if produto['tipo'] == 'Cordel' %}
+                  <span class="item-catalog">
+                    Inserção: {{ produto['data_insercao']|data_br }}
+                    {% if produto['edicao'] %}Edição: {{ produto['edicao'] }}{% endif %}
+                    {% if produto['editora'] %} · Editora: {{ produto['editora'] }}{% endif %}
+                    {% if produto['local'] %} · Local: {{ produto['local'] }}{% endif %}
+                    {% if produto['ano'] %} · Ano: {{ produto['ano'] }}{% endif %}
+                    {% if produto['tema'] %} · Tema: {{ produto['tema'] }}{% endif %}
+                    {% if produto['notas'] %} · Notas: {{ produto['notas'] }}{% endif %}
+                  </span>
+                {% elif produto['data_insercao'] %}
+                  <span class="item-catalog">
+                    Inserção: {{ produto['data_insercao']|data_br }}
+                    {% if produto['tipo'] == 'Periodico' %}
+                      {% if produto['volume_ano_periodo'] %} · Volume/Ano/Período: {{ produto['volume_ano_periodo'] }}{% endif %}
+                      {% if produto['edicao_fasciculo'] %} · Edição/Fascículo: {{ produto['edicao_fasciculo'] }}{% endif %}
+                      {% if produto['numero'] %} · Número: {{ produto['numero'] }}{% endif %}
+                      {% if produto['periodicidade'] %} · Periodicidade: {{ produto['periodicidade'] }}{% endif %}
+                      {% if produto['ano_publicacao'] %} · Ano de Publicação: {{ produto['ano_publicacao'] }}{% endif %}
+                    {% else %}
+                      {% if produto['ano'] %} · Ano: {{ produto['ano'] }}{% endif %}
+                      {% if produto['edicao'] %} · Edição: {{ produto['edicao'] }}{% endif %}
+                      {% if produto['volume'] %} · Volume: {{ produto['volume'] }}{% endif %}
+                      {% if produto['tipologia_material'] %} · Tipologia: {{ produto['tipologia_material'] }}{% endif %}
+                    {% endif %}
+                    {% if produto['possui_carimbo'] %} · Carimbo: {{ produto['possui_carimbo'] }}{% endif %}
+                    {% if produto['numero_caixa'] %} · Caixa: {{ produto['numero_caixa'] }}{% endif %}
+                    {% if produto['observacoes'] %} · Observações: {{ produto['observacoes'] }}{% endif %}
+                  </span>
+                {% endif %}
+                <span>#{{ produto['id'] }}</span>
+              </div>
+              <div class="product-category" data-label="Categoria">{{ produto['categoria'] or '—' }}</div>
+              <div class="product-units" data-label="Unidades">{{ produto['quantidade'] }}</div>
+              <div class="row-actions">
+                <details class="stock-details">
+                  <summary>Ajustar</summary>
+                  <form class="stock-form" method="post" action="{{ url_for('movimentar', produto_id=produto['id']) }}">
+                    <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token', '') }}">
+                    <label class="visually-hidden" for="sentido-{{ produto['id'] }}">Tipo de movimentação</label>
+                    <select id="sentido-{{ produto['id'] }}" name="sentido">
+                      <option value="entrada">Entrada</option>
+                      <option value="saida">Saída</option>
+                    </select>
+                    <label class="visually-hidden" for="quantidade-{{ produto['id'] }}">Quantidade</label>
+                    <input id="quantidade-{{ produto['id'] }}" name="quantidade" type="number" min="1" step="1" placeholder="Qtd." required>
+                    <button class="button button-small" type="submit">Aplicar</button>
+                  </form>
+                </details>
+                <form method="post" action="{{ url_for('remover', produto_id=produto['id']) }}" data-confirmar="Remover este produto do inventário?">
+                  <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token', '') }}">
+                  <button class="button button-remove" type="submit" aria-label="Remover {{ produto['nome'] }}">Remover</button>
+                </form>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+        <div class="empty-state">
+          <span class="empty-mark" aria-hidden="true">—</span>
+          <h3>{% if termo %}Nenhum resultado{% else %}Seu inventário está vazio{% endif %}</h3>
+          <p>{% if termo %}Tente outro nome ou categoria.{% else %}Cadastre o primeiro produto para começar.{% endif %}</p>
+          {% if not termo %}
+            <button class="button button-primary" type="button" data-abrir-cadastro>Adicionar produto</button>
+          {% endif %}
+        </div>
+      {% endif %}
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>Desenvolvedor:</span>
+    <strong>Gabriel Bruno Costa De Lima</strong>
+  </footer>
+
+  <dialog class="product-dialog" id="dialogo-cadastro" aria-labelledby="cadastro-titulo">
+    <button class="dialog-close" type="button" aria-label="Fechar">×</button>
+    <div class="dialog-brand" aria-hidden="true">
+      <img class="brand-logo" src="{{ url_for('static', filename='logo-fcja-2026.jpeg') }}" alt="">
+    </div>
+    <p class="eyebrow">NOVO ITEM DO ACERVO</p>
+    <h2 id="cadastro-titulo">Adicionar publicação</h2>
+    <form class="product-form" method="post" action="{{ url_for('cadastrar') }}" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token', '') }}">
+      <label for="tipo">Tipo de publicação</label>
+      <select id="tipo" name="tipo" required>
+        <option value="Livro">Livro</option>
+        <option value="Plaquete">Plaquete</option>
+        <option value="Periodico">Periódico</option>
+        <option value="Folheto">Folheto</option>
+        <option value="Cordel">Cordel</option>
+      </select>
+      <label for="definicao">Definição</label>
+      <textarea id="definicao" name="definicao" rows="4" readonly required>{{ definicoes_publicacao['Livro'] }}</textarea>
+      <label for="nome" id="rotulo-nome" data-publicacao-identificacao>Titulo/Subtitulo</label>
+      <input id="nome" name="nome" type="text" maxlength="120" required autofocus data-publicacao-identificacao>
+      <label for="autor" id="rotulo-autor" data-publicacao-identificacao>Autor (es)</label>
+      <input id="autor" name="autor" type="text" maxlength="120" required data-publicacao-identificacao>
+      <div id="grupo-data-insercao">
+        <span class="insertion-date-title">Data da inserção</span>
+        <div class="insertion-date-fields">
+          <div>
+            <label for="data-dia">Dia</label>
+            <input id="data-dia" type="text" value="{{ data_insercao_hoje[8:10] }}" readonly>
+          </div>
+          <div>
+            <label for="data-mes">Mês</label>
+            <input id="data-mes" type="text" value="{{ data_insercao_hoje[5:7] }}" readonly>
+          </div>
+          <div>
+            <label for="data-ano">Ano</label>
+            <input id="data-ano" type="text" value="{{ data_insercao_hoje[:4] }}" readonly>
+          </div>
+        </div>
+        <input id="data-insercao" name="data_insercao" type="hidden" value="{{ data_insercao_hoje }}" readonly>
+      </div>
+      <div data-publicacao-padrao hidden>
+        <label for="categoria">Gênero ou categoria</label>
+        <input id="categoria" name="categoria" type="text" maxlength="80" required>
+      </div>
+      <div class="form-pair">
+        <div>
+          <label for="quantidade-nova" id="rotulo-quantidade">Quantidade de Exemplar</label>
+          <input id="quantidade-nova" name="quantidade" type="number" min="0" step="1" required>
+        </div>
+      </div>
+      <div data-publicacao-catalogo>
+        <label for="ano">Ano</label>
+        <input id="ano" name="ano" type="number" min="0" step="1" required>
+        <label for="edicao">Edição</label>
+        <input id="edicao" name="edicao" type="text" maxlength="80" required>
+        <label for="volume">Volume</label>
+        <input id="volume" name="volume" type="text" maxlength="80" required>
+        <label for="tipologia-material">Tipologia do Material</label>
+        <input id="tipologia-material" name="tipologia_material" type="text" maxlength="120" required>
+        <label for="possui-carimbo">Possui Carimbo?</label>
+        <select id="possui-carimbo" name="possui_carimbo" required>
+          <option value="">Selecione</option>
+          <option value="Sim">Sim</option>
+          <option value="Não">Não</option>
+        </select>
+        <label for="numero-caixa">Número da Caixa</label>
+        <input id="numero-caixa" name="numero_caixa" type="text" maxlength="80" required>
+        <label for="observacoes">Observações</label>
+        <textarea id="observacoes" name="observacoes" rows="3" maxlength="1000" required></textarea>
+      </div>
+      <div data-publicacao-periodico hidden>
+        <label for="volume-ano-periodo">Volume/Ano/Período</label>
+        <input id="volume-ano-periodo" name="volume_ano_periodo" type="text" maxlength="120" required disabled>
+        <label for="edicao-fasciculo">Edição/Fascículo</label>
+        <input id="edicao-fasciculo" name="edicao_fasciculo" type="text" maxlength="120" required disabled>
+        <label for="numero-periodico">Número</label>
+        <input id="numero-periodico" name="numero" type="text" maxlength="80" required disabled>
+        <label for="periodicidade">Periodicidade</label>
+        <input id="periodicidade" name="periodicidade" type="text" maxlength="80" required disabled>
+        <label for="ano-publicacao">Ano de Publicação</label>
+        <input id="ano-publicacao" name="ano_publicacao" type="number" min="0" step="1" required disabled>
+        <label for="possui-carimbo-periodico">Possui carimbo?</label>
+        <select id="possui-carimbo-periodico" name="possui_carimbo" required disabled>
+          <option value="">Selecione</option>
+          <option value="Sim">Sim</option>
+          <option value="Não">Não</option>
+        </select>
+        <label for="numero-caixa-periodico">Número da caixa</label>
+        <input id="numero-caixa-periodico" name="numero_caixa" type="text" maxlength="80" required disabled>
+        <label for="observacoes-periodico">Observações</label>
+        <textarea id="observacoes-periodico" name="observacoes" rows="3" maxlength="1000" required disabled></textarea>
+      </div>
+      <div data-publicacao-cordel hidden>
+        <label for="imagem-capa-cordel">Imagem da capa</label>
+        <input id="imagem-capa-cordel" name="imagem_capa" type="file" accept="image/png,image/jpeg,image/webp" required disabled>
+        <small class="form-help">Nome do autor ou cordelista.</small>
+        <label for="autor-cordel">Autor</label>
+        <input id="autor-cordel" name="autor" type="text" maxlength="120" required disabled>
+        <small class="form-help">Título completo da obra.</small>
+        <label for="nome-cordel">Título</label>
+        <input id="nome-cordel" name="nome" type="text" maxlength="120" required disabled>
+        <small class="form-help">Número ou indicação da edição.</small>
+        <label for="edicao-cordel">Edição</label>
+        <input id="edicao-cordel" name="edicao" type="text" maxlength="80" required disabled>
+        <small class="form-help">Nome da editora responsável.</small>
+        <label for="editora-cordel">Editora</label>
+        <input id="editora-cordel" name="editora" type="text" maxlength="120" required disabled>
+        <small class="form-help">Cidade de publicação.</small>
+        <label for="local-cordel">Local</label>
+        <input id="local-cordel" name="local" type="text" maxlength="120" required disabled>
+        <small class="form-help">Ano de publicação.</small>
+        <label for="ano-cordel">Ano</label>
+        <input id="ano-cordel" name="ano" type="number" min="0" step="1" required disabled>
+        <small class="form-help">Assunto(s) atribuído(s) à obra por meio da indexação temática realizada.</small>
+        <label for="tema-cordel">Tema</label>
+        <input id="tema-cordel" name="tema" type="text" maxlength="500" required disabled>
+        <small class="form-help">Informações complementares sobre a obra.</small>
+        <label for="notas-cordel">Notas</label>
+        <textarea id="notas-cordel" name="notas" rows="3" maxlength="1000" required disabled></textarea>
+        <small class="form-help">Reprodução digital da capa do folheto.</small>
+      </div>
+      <div class="dialog-actions">
+        <button class="button button-secondary" type="button" id="cancelar-cadastro">Cancelar</button>
+        <button class="button button-primary" type="submit">Salvar produto</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    const dialogo = document.querySelector("#dialogo-cadastro");
+    const fecharDialogo = () => {
+      if (dialogo && dialogo.open) {
+        dialogo.close();
+      }
+    };
+    document.querySelectorAll("#abrir-cadastro, [data-abrir-cadastro]").forEach((botao) => {
+      botao.addEventListener("click", () => {
+        if (dialogo) {
+          dialogo.showModal();
+        }
+      });
+    });
+
+    const botaoCancelar = document.querySelector("#cancelar-cadastro");
+    const botaoFechar = dialogo?.querySelector(".dialog-close");
+    const tipoPublicacao = document.querySelector("#tipo");
+    const campoAutor = document.querySelector("#autor");
+    const campoAutorCordel = document.querySelector("#autor-cordel");
+    const campoNomeCordel = document.querySelector("#nome-cordel");
+    const campoDefinicao = document.querySelector("#definicao");
+    const campoDataInsercao = document.querySelector("#data-insercao");
+    const grupoDataInsercao = document.querySelector("#grupo-data-insercao");
+    const definicoesPublicacao = {{ definicoes_publicacao|tojson }};
+    const camposPadrao = document.querySelectorAll("[data-publicacao-padrao]");
+    const camposCatalogo = document.querySelector("[data-publicacao-catalogo]");
+    const camposPeriodico = document.querySelector("[data-publicacao-periodico]");
+    const camposCordel = document.querySelector("[data-publicacao-cordel]");
+    const rotuloNome = document.querySelector("#rotulo-nome");
+    const rotuloAutor = document.querySelector("#rotulo-autor");
+    const rotuloQuantidade = document.querySelector("#rotulo-quantidade");
+
+    const atualizarCamposPublicacao = () => {
+      const usaCamposCatalogo = ["Livro", "Plaquete", "Folheto"].includes(tipoPublicacao.value);
+      const usaCamposPeriodico = tipoPublicacao.value === "Periodico";
+      const usaCamposCordel = tipoPublicacao.value === "Cordel";
+      const ocultaCamposPadrao = usaCamposCatalogo || usaCamposPeriodico || usaCamposCordel;
+      document.querySelectorAll("[data-publicacao-identificacao]").forEach((campo) => {
+        campo.hidden = usaCamposCordel;
+        if (campo instanceof HTMLInputElement) campo.disabled = usaCamposCordel;
+      });
+      camposPadrao.forEach((grupo) => {
+        grupo.hidden = ocultaCamposPadrao;
+        grupo.querySelectorAll("input, select, textarea").forEach((campo) => {
+          campo.disabled = ocultaCamposPadrao;
+        });
+      });
+      camposCatalogo.hidden = !usaCamposCatalogo;
+      camposCatalogo.querySelectorAll("input, select, textarea").forEach((campo) => {
+        campo.disabled = !usaCamposCatalogo;
+      });
+      camposPeriodico.hidden = !usaCamposPeriodico;
+      camposPeriodico.querySelectorAll("input, select, textarea").forEach((campo) => {
+        campo.disabled = !usaCamposPeriodico;
+      });
+      camposCordel.hidden = !usaCamposCordel;
+      camposCordel.querySelectorAll("input, select, textarea").forEach((campo) => {
+        campo.disabled = !usaCamposCordel;
+      });
+      campoDataInsercao.disabled = false;
+      const terceiroCampoPublicacao = usaCamposCordel
+        ? document.querySelector("#nome-cordel")
+        : usaCamposPeriodico
+          ? document.querySelector("#numero-periodico")
+          : document.querySelector("#volume");
+      terceiroCampoPublicacao.insertAdjacentElement("afterend", grupoDataInsercao);
+      campoAutor.required = ["Livro", "Plaquete", "Folheto", "Periodico"].includes(tipoPublicacao.value);
+      campoAutorCordel.required = usaCamposCordel;
+      campoNomeCordel.required = usaCamposCordel;
+      rotuloNome.textContent = usaCamposCordel
+        ? "Título"
+        : usaCamposCatalogo
+        ? "Titulo/Subtitulo"
+        : usaCamposPeriodico
+          ? "Titulo do Periódico"
+          : "Título";
+      rotuloAutor.textContent = usaCamposCordel
+        ? "Autor"
+        : usaCamposCatalogo || usaCamposPeriodico
+        ? "Autor (es)"
+        : "Autor";
+      rotuloQuantidade.textContent = usaCamposCatalogo ? "Quantidade de Exemplar" : "Quantidade";
+      campoDefinicao.value = definicoesPublicacao[tipoPublicacao.value] || "";
+    };
+    tipoPublicacao.addEventListener("change", atualizarCamposPublicacao);
+    atualizarCamposPublicacao();
+
+    botaoCancelar?.addEventListener("click", fecharDialogo);
+    botaoFechar?.addEventListener("click", fecharDialogo);
+
+    dialogo?.addEventListener("click", (evento) => {
+      if (evento.target === dialogo) fecharDialogo();
+    });
+
+    document.querySelectorAll("form[data-confirmar]").forEach((formulario) => {
+      formulario.addEventListener("submit", (evento) => {
+        if (!window.confirm(formulario.dataset.confirmar)) evento.preventDefault();
+      });
+    });
+
+    const alternarTema = document.querySelector("#alternar-tema");
+    const corDoNavegador = document.querySelector('meta[name="theme-color"]');
+    const atualizarTema = (escuro) => {
+      document.documentElement.dataset.theme = escuro ? "dark" : "light";
+      corDoNavegador.content = escuro ? "#100d0e" : "#171717";
+      alternarTema.setAttribute("aria-pressed", String(escuro));
+      alternarTema.setAttribute("aria-label", escuro ? "Ativar modo claro" : "Ativar modo escuro");
+      alternarTema.querySelector(".theme-toggle-label").textContent = escuro ? "Modo claro" : "Modo escuro";
+      alternarTema.querySelector("[aria-hidden]").textContent = escuro ? "☀" : "☾";
+      try {
+        localStorage.setItem("inventario-tema", escuro ? "escuro" : "claro");
+      } catch {}
+    };
+    atualizarTema(document.documentElement.dataset.theme === "dark");
+    alternarTema.addEventListener("click", () => {
+      atualizarTema(document.documentElement.dataset.theme !== "dark");
+    });
+  </script>
+</body>
+</html>

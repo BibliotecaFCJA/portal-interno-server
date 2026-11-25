@@ -1,0 +1,44 @@
+{# Conteúdo de um mês do log.
+
+   Usado em dois lugares, sempre com o mesmo resultado:
+   - na carga de /logs (o mês já vem aberto);
+   - na resposta de /logs/mes/<mes>, que o logs.js injeta na página.
+
+   Não deve ter <table> completo aqui: quem envelopa é o chamador. #}
+<div class="logs-mes-corpo">
+  {% if linhas %}
+  <div class="tabela-rolagem">
+    <table class="tabela">
+      <thead>
+        <tr>
+          <th scope="col">Data</th>
+          <th scope="col">Usuário</th>
+          <th scope="col">Ação</th>
+          <th scope="col">Detalhes</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in linhas %}
+        <tr>
+          <td class="sem-quebra">{{ log['data'] | data_br }}</td>
+          <td>{{ log['usuario'] }}</td>
+          <td><strong>{{ log['acao'] }}</strong></td>
+          <td class="texto-suave">{{ log['detalhes'] }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if total > linhas | length %}
+  <p class="logs-mes-aviso">
+    Mostrando os {{ linhas | length }} registros mais recentes de
+    {{ total }}. Refine os filtros para ver os restantes.
+  </p>
+  {% endif %}
+  {% else %}
+  <p class="estado-vazio">
+    <span>Nenhum registro neste mês com os filtros atuais.</span>
+  </p>
+  {% endif %}
+</div>

@@ -1,0 +1,1 @@
+"""Camada de modelos — acesso ao banco SQLite do Digitaliza FCJA."""

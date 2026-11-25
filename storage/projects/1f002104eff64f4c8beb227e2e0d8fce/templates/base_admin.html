@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      {% block title %}Biblioteca - Sistema Empréstimo{% endblock %}
+    </title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+  </head>
+  <body>
+    <header class="header">
+      <img
+        src="{{ url_for('static', filename='img/Logo 2.png') }}"
+        alt="Logo da Biblioteca Durmeval Trigueiro Mendes"
+        class="logo"
+      />
+      <div class="header-text">
+        <h1>BIBLIOTECA</h1>
+        <h2>DURMEVAL TRIGUEIRO MENDES</h2>
+        <span class="subtitle">EMPRÉSTIMO · CADASTRO</span>
+      </div>
+    </header>
+
+    <nav class="navbar">
+      <a
+        href="/emprestimos-listagem"
+        class="{% if active_page == 'emprestimos' %}active{% endif %}"
+      >
+        Empréstimos
+      </a>
+      <a
+        href="/usuarios-listagem"
+        class="{% if active_page == 'usuarios' %}active{% endif %}"
+      >
+        Usuários
+      </a>
+    </nav>
+    <main class="content">{% block content %}{% endblock %}</main>
+  </body>
+</html>

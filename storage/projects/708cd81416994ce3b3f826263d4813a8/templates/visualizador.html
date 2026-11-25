@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block titulo %}Visualizador — {{ obra['titulo'] }}{% endblock %}
+{% block conteudo %}
+<section class="cabecalho-pagina">
+  <div>
+    <a href="{{ url_for('obras.detalhes', obra_id=obra['id']) }}" class="link voltar">← {{ obra['titulo'] }}</a>
+    <h1>Visualizador</h1>
+    <p class="texto-suave">{{ obra['codigo'] }} — {{ paginas | length }} página(s)</p>
+  </div>
+</section>
+
+{% if paginas %}
+<section class="painel visualizador">
+  <div class="visualizador-quadro" id="visualizador-quadro">
+    <img id="imagem-visualizador"
+         src="{{ url_for('obras.arquivo_pagina', obra_id=obra['id'], pagina_id=paginas[0]['id'], tipo='original') }}"
+         alt="Página {{ paginas[0]['numero'] }} da obra {{ obra['titulo'] }}">
+    <div class="imagem-erro" id="visualizador-erro" hidden>
+      Não foi possível carregar a imagem desta página. Verifique se o arquivo
+      original está disponível no servidor.
+    </div>
+  </div>
+
+  <div class="visualizador-barra" role="toolbar" aria-label="Controles do visualizador">
+    <div class="grupo-botoes">
+      <button type="button" class="botao botao-contorno" id="botao-anterior" aria-label="Página anterior">←</button>
+      <span class="visualizador-indicador" id="indicador-pagina">Página 1 / {{ paginas | length }}</span>
+      <button type="button" class="botao botao-contorno" id="botao-proximo" aria-label="Próxima página">→</button>
+    </div>
+
+    <div class="campo campo-ir">
+      <label for="ir-pagina" class="sr-only">Ir para página</label>
+      <input type="number" id="ir-pagina" min="1" max="{{ paginas | length }}" value="1">
+      <button type="button" class="botao botao-contorno" id="botao-ir">Ir</button>
+    </div>
+
+    <div class="grupo-botoes">
+      <button type="button" class="botao botao-contorno" id="botao-zoom-menos" aria-label="Reduzir zoom">−</button>
+      <span class="visualizador-indicador" id="indicador-zoom">100%</span>
+      <button type="button" class="botao botao-contorno" id="botao-zoom-mais" aria-label="Aumentar zoom">+</button>
+      <button type="button" class="botao botao-contorno" id="botao-ajustar">Ajustar à tela</button>
+    </div>
+
+    <div class="grupo-botoes">
+      <button type="button" class="botao botao-secundario ativo-modo" id="botao-original">Original</button>
+      <button type="button" class="botao botao-secundario" id="botao-processada"
+              {% if not paginas[0]['arquivo_processado'] %}disabled
+              title="Processe a obra para ver as páginas processadas"{% endif %}>Processada</button>
+      <button type="button" class="botao botao-contorno" id="botao-tela-cheia"
+              aria-label="Tela cheia">⛶</button>
+    </div>
+  </div>
+
+  <div class="visualizador-lista" id="visualizador-lista">
+    {% for pagina in paginas %}
+    <button type="button" class="pulo-pagina {% if loop.first %}ativo{% endif %}"
+            data-indice="{{ loop.index0 }}" title="Página {{ pagina['numero'] }}">
+      <img src="{{ url_for('processamento.miniatura', pagina_id=pagina['id']) }}"
+           alt="Miniatura página {{ pagina['numero'] }}" loading="lazy">
+      <span>{{ '%03d' % pagina['numero'] }}</span>
+    </button>
+    {% endfor %}
+  </div>
+</section>
+{% else %}
+<section class="painel">
+  <div class="estado-vazio">
+    <p>Esta obra ainda não possui páginas.</p>
+    <a href="{{ url_for('obras.detalhes', obra_id=obra['id']) }}" class="botao botao-primario">Adicionar páginas</a>
+  </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+  window.FCJA_VISUALIZADOR = {
+    obraId: {{ obra['id'] }},
+    paginas: [
+      {% for pagina in paginas %}
+      {
+        numero: {{ pagina['numero'] }},
+        original: "{{ url_for('obras.arquivo_pagina', obra_id=obra['id'], pagina_id=pagina['id'], tipo='original') }}",
+        processada: {{ ('"' ~ url_for('obras.arquivo_pagina', obra_id=obra['id'], pagina_id=pagina['id'], tipo='processada') ~ '?v=' ~ ((pagina['data_processamento'] or pagina['arquivo_processado']) | urlencode) ~ '"') if pagina['arquivo_processado'] else 'null' }}
+      }{{ ',' if not loop.last }}
+      {% endfor %}
+    ]
+  };
+</script>
+<script src="{{ url_for('static', filename='js/visualizador.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,12 @@
+
+# Digitaliza FCJA — Sistema de Digitalização e Marca d'Água
+# Fundação Casa de José Américo (FCJA)
+#
+# Backend web
+Flask>=3.0,<4.0
+#
+# Processamento de imagens (marca d'água, TIFF, PNG, JPEG)
+Pillow>=10.0,<12.0
+#
+# Testes automatizados
+pytest>=8.0,<9.0

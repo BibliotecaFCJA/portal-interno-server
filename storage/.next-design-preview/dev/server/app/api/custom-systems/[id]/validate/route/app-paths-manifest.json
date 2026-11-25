@@ -1,0 +1,3 @@
+{
+  "/api/custom-systems/[id]/validate/route": "app/api/custom-systems/[id]/validate/route.js"
+}

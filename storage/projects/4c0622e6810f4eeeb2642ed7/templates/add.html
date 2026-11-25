@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card content-panel p-4">
+    <nav class="breadcrumb-nav" aria-label="Navegação estrutural"><a href="{{ url_for('cadastros') }}">Cadastros</a><span>›</span><a href="{{ url_for('index') }}">Instituições</a><span>›</span><strong>Nova instituição</strong></nav>
+    <div class="form-heading">
+        <span class="eyebrow">Novo registro</span>
+        <h1 class="page-title">Cadastrar instituição</h1>
+        <p class="page-subtitle">Adicione uma organização ao catálogo de contatos da biblioteca.</p>
+    </div>
+    {% if erro %}<div class="alert alert-danger">{{ erro }}</div>{% endif %}
+
+    <form method="POST"
+          onsubmit="this.querySelector('button[type=submit]').disabled=true;
+                    this.querySelector('button[type=submit]').innerText='Salvando...';">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="row g-4">
+            <div class="col-md-12">
+                <label class="form-label fw-bold">Nome oficial <span class="required-mark">*</span></label>
+                <input type="text" name="nome_oficial" class="form-control" placeholder="Ex: Biblioteca Municipal" required>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-bold">E-mail</label>
+                <input type="email" name="email_oficial" class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Telefone</label>
+                <input type="text" name="telefone_principal" class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Instagram / Site</label>
+                <input type="text" name="site_url" class="form-control" placeholder="@perfil ou https://...">
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Endereço</label>
+                <input type="text" name="endereco_completo" class="form-control">
+            </div>
+
+            <div class="col-md-12">
+                <label class="form-label fw-bold">Observações</label>
+                <textarea name="observacao" class="form-control"></textarea>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-danger px-5">
+                Salvar Instituição
+            </button>
+
+            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary ms-2">
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

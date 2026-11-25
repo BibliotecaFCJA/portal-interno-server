@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<nav class="breadcrumb-nav" aria-label="Navegação estrutural"><a href="{{ url_for('cadastros') }}">Cadastros</a><span>›</span><a href="{{ url_for('index') }}">Instituições</a><span>›</span><strong>Detalhes</strong></nav>
+<div class="page-header compact">
+    <div><span class="eyebrow">Ficha do contato</span><h1 class="page-title">{{ instituicao.nome_oficial }}</h1><p class="page-subtitle">Pessoa jurídica</p></div>
+    <a href="{{ url_for('edit_instituicao', id=instituicao.id) }}" class="btn btn-danger">Editar contato</a>
+</div>
+
+<div class="details-container contact-details">
+    <div class="detail-section"><span class="eyebrow">Dados de contato</span>
+    <div class="detail-grid">
+    <p><span>Email</span><strong>{{ instituicao.email_oficial or '-' }}</strong></p>
+    <p><span>Telefone</span><strong>{{ instituicao.telefone_principal or '-' }}</strong></p>
+    <p><span>Site ou Instagram</span><strong>{{ instituicao.site_url or '-' }}</strong></p>
+    <p><span>Endereço</span><strong>{{ instituicao.endereco_completo or '-' }}</strong></p>
+    </div></div>
+    <div class="detail-section"><span class="eyebrow">Observações</span>
+    <p><strong>{{ instituicao.observacao or 'Nenhuma observação registrada.' }}</strong></p>
+    </div>
+    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">Voltar para instituições</a>
+</div>
+{% endblock %}

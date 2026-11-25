@@ -1,0 +1,128 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 9%;
+  --card: 0 0% 100%;
+  --muted: 0 0% 96%;
+  --muted-foreground: 0 0% 45%;
+  --border: 0 0% 88%;
+  --primary: 358 85% 52%;
+  --primary-foreground: 0 0% 100%;
+  --ember: 358 85% 52%;
+}
+
+.dark {
+  --background: 0 0% 7%;
+  --foreground: 0 0% 96%;
+  --card: 0 0% 10%;
+  --muted: 0 0% 14%;
+  --muted-foreground: 0 0% 64%;
+  --border: 0 0% 20%;
+  --primary: 358 90% 60%;
+  --primary-foreground: 0 0% 100%;
+  --ember: 358 90% 60%;
+}
+
+* { box-sizing: border-box; }
+
+html,
+body {
+  margin: 0;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: var(--font-sans), sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
+
+/* Plain, square controls and surfaces; the tiny status indicator stays round. */
+button,
+input,
+select,
+textarea,
+a,
+label,
+summary,
+article,
+.rounded-card,
+.modern-card,
+.stamp,
+.rounded-full {
+  border-radius: 0 !important;
+}
+
+.status-dot { border-radius: 9999px !important; }
+
+.search-field:focus-within { border-color: hsl(var(--foreground)); }
+
+.piece-number {
+  color: hsl(var(--muted-foreground));
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.piece-number strong { color: hsl(var(--primary)); }
+
+.hero-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(600px 300px at 50% 0%, hsl(var(--primary) / .08), transparent 70%);
+}
+
+.dark .hero-glow {
+  background: radial-gradient(700px 320px at 50% 0%, hsl(var(--primary) / .12), transparent 70%);
+}
+
+.hero-title {
+  font-size: clamp(2.35rem, 5.5vw, 4.5rem);
+  line-height: 1.02;
+  letter-spacing: -.03em;
+}
+
+.hero-title .accent { color: hsl(var(--primary)); }
+
+.hero-jose {
+  top: 50%;
+  right: 8%;
+  width: min(30%, 300px);
+  height: auto;
+  pointer-events: none;
+  opacity: .2;
+  transform: translateY(-50%);
+}
+
+.dark .hero-jose { opacity: .27; }
+
+.hero-jose-mirror {
+  right: auto;
+  left: 8%;
+  opacity: .1;
+  transform: translateY(-50%) scaleX(-1);
+}
+
+.dark .hero-jose-mirror { opacity: .14; }
+
+@media (max-width: 640px) {
+  .hero-jose { right: -5%; top: 54%; width: 48%; opacity: .12; }
+  .dark .hero-jose { opacity: .16; }
+  .hero-jose-mirror { left: -5%; right: auto; opacity: .08; }
+  .dark .hero-jose-mirror { opacity: .11; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

@@ -1,0 +1,55 @@
+#Python
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+*.log
+
+# Ambiente virtual
+.venv/
+venv/
+env/
+
+# Ambiente e segredos
+.env
+.env.*
+!.env.example
+
+# Banco de dados e backups
+*.db
+*.db.*
+*.sqlite
+*.sqlite3
+*.backup
+*.bak
+
+# Backups
+backups/
+backup/
+*sql
+*dump
+
+# Logs
+*.log
+
+# PyInstaller
+build/
+dist/
+
+# IDE
+.vscode/
+.idea/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Exportações locais e arquivos gerados
+*.csv
+pessoas.csv
+pessoas_rows.csv
+instituicoes_rows.csv
+backup.sql
+backup_supabase.sql
+instance/
+

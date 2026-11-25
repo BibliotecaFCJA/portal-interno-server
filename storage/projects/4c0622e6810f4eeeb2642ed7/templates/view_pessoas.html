@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block content %}
+<nav class="breadcrumb-nav" aria-label="Navegação estrutural"><a href="{{ url_for('cadastros') }}">Cadastros</a><span>›</span><a href="{{ url_for('pessoas') }}">Pessoas</a><span>›</span><strong>{{ pessoa.nome }}</strong></nav>
+<div class="page-header compact"><div><span class="eyebrow">Ficha do contato</span><h1 class="page-title">{{ pessoa.nome }}</h1><p class="page-subtitle">Pessoa física{% if pessoa.cargo %} · {{ pessoa.cargo }}{% endif %}</p></div><a href="{{ url_for('edit_pessoa', id=pessoa.id) }}" class="btn btn-danger">Editar contato</a></div>
+<div class="details-container contact-details"><div class="detail-section"><span class="eyebrow">Dados de contato</span><div class="detail-grid"><p><span>Email</span><strong>{{ pessoa.email or '-' }}</strong></p><p><span>Telefone</span><strong>{{ pessoa.telefone or '-' }}</strong></p><p><span>Endereço</span><strong>{{ pessoa.endereco or '-' }}</strong></p><p><span>Instagram</span><strong>{{ pessoa.instagram or '-' }}</strong></p></div></div><div class="detail-section"><span class="eyebrow">Observações</span><p><strong>{{ pessoa.observacao or 'Nenhuma observação registrada.' }}</strong></p></div><a href="{{ url_for('pessoas') }}" class="btn btn-outline-secondary">Voltar para pessoas</a></div>
+{% endblock %}

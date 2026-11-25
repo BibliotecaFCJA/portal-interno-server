@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#8c2437">
+  <title>Sistema Biblioteca</title>
+  <link rel="icon" href="/fcja-logo.jpg" type="image/jpeg">
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div id="app">
+    <main class="loading" aria-live="polite">Carregando o sistema...</main>
+  </div>
+  <dialog id="dialog" aria-labelledby="dialog-title">
+    <form method="dialog" class="dialog-close-row">
+      <button class="icon-button" aria-label="Fechar" value="cancel">×</button>
+    </form>
+    <div id="dialog-content"></div>
+  </dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

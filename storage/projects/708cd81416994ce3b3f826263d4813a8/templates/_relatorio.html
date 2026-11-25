@@ -1,0 +1,35 @@
+<!-- Relatório de processamento (parcial reutilizável) -->
+<div class="relatorio">
+  <div class="painel-cabecalho">
+    <h2>Relatório de processamento</h2>
+  </div>
+
+  {% if not registro %}
+  <div class="flash flash-info">
+    Nenhum processamento foi registrado para esta obra ainda.
+  </div>
+  {% endif %}
+
+  <dl class="ficha ficha-relatorio">
+    <div><dt>Obra</dt><dd>{{ obra['titulo'] }}</dd></div>
+    <div><dt>Código</dt><dd><code class="codigo">{{ obra['codigo'] }}</code></dd></div>
+    <div><dt>Data e horário</dt><dd>{{ registro['data'] | data_br if registro else '—' }}</dd></div>
+    <div><dt>Total de páginas</dt><dd>{{ obra['quantidade_paginas'] }}</dd></div>
+    <div><dt>Processadas</dt><dd>{{ registro['quantidade_processada'] if registro else '—' }}</dd></div>
+    <div><dt>Erros</dt><dd>{{ registro['quantidade_erros'] if registro else '—' }}</dd></div>
+    <div><dt>Marca d'água</dt><dd>Logo FCJA</dd></div>
+    <div><dt>Posição</dt><dd>{{ registro['posicao'] if registro and registro['posicao'] else '—' }}</dd></div>
+    <div><dt>Opacidade</dt><dd>{{ (registro['opacidade'] ~ '%') if registro and registro['opacidade'] is not none else '—' }}</dd></div>
+    <div><dt>Tamanho</dt><dd>{{ registro['tamanho_logo'] if registro and registro['tamanho_logo'] else '—' }}</dd></div>
+    <div><dt>Margem</dt><dd>{{ registro['margem'] if registro and registro['margem'] else '—' }}</dd></div>
+    <div><dt>Status</dt><dd>{{ rotulos_status.get(registro['status'], registro['status']) if registro else '—' }}</dd></div>
+  </dl>
+
+  {% if registro and registro['mensagem_erro'] %}
+  <div class="flash flash-erro">{{ registro['mensagem_erro'] }}</div>
+  {% endif %}
+
+  <p class="texto-suave">Os arquivos processados estão em
+    <code>uploads/processadas/{{ obra['codigo'] }}/</code>; os originais permanecem
+    intactos em <code>uploads/originais/{{ obra['codigo'] }}/</code>.</p>
+</div>

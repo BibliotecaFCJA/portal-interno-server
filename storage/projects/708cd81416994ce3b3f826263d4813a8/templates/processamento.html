@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% block titulo %}Processar{% if obra['titulo'] %} — {{ obra['titulo'] }}{% endif %}{% endblock %}
+{% block conteudo %}
+<section class="cabecalho-pagina">
+  <div>
+    <a href="{{ url_for('obras.detalhes', obra_id=obra['id']) }}" class="link voltar">← Voltar</a>
+    <h1>Processar obra</h1>
+    <p class="texto-suave">
+      <code class="codigo">{{ obra['codigo'] }}</code> ·
+      {{ paginas | length }} página(s) ·
+      Logo FCJA · {{ cfg.wm_opacidade }}% de opacidade
+    </p>
+  </div>
+</section>
+
+<div class="grade-processamento">
+
+  <!-- PRÉ-VISUALIZAÇÃO ------------------------------------------------>
+  <section class="painel">
+    <div class="painel-cabecalho">
+      <h2>Pré-visualização</h2>
+      <span class="texto-suave">Ajuste e veja o resultado antes de processar</span>
+    </div>
+
+    {% if paginas %}
+    <div class="controles-preview">
+      <div class="campo">
+        <label for="prev-pagina">Página de exemplo</label>
+        <select id="prev-pagina">
+          {% for pagina in paginas %}
+          <option value="{{ loop.index0 }}">Página {{ '%03d' % pagina['numero'] }} — {{ pagina['nome_original'] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="campo">
+        <label for="prev-posicao">Posição</label>
+        <select id="prev-posicao">
+          <option value="superior_esquerdo" {% if cfg.wm_posicao == 'superior_esquerdo' %}selected{% endif %}>Superior esquerdo</option>
+          <option value="superior_centro" {% if cfg.wm_posicao == 'superior_centro' %}selected{% endif %}>Superior centralizado</option>
+          <option value="superior_direito" {% if cfg.wm_posicao == 'superior_direito' %}selected{% endif %}>Superior direito</option>
+          <option value="centro_esquerdo" {% if cfg.wm_posicao == 'centro_esquerdo' %}selected{% endif %}>Centro esquerdo</option>
+          <option value="centro" {% if cfg.wm_posicao == 'centro' %}selected{% endif %}>Centro</option>
+          <option value="centro_direito" {% if cfg.wm_posicao == 'centro_direito' %}selected{% endif %}>Centro direito</option>
+          <option value="inferior_esquerdo" {% if cfg.wm_posicao == 'inferior_esquerdo' %}selected{% endif %}>Inferior esquerdo</option>
+          <option value="inferior_centro" {% if cfg.wm_posicao == 'inferior_centro' %}selected{% endif %}>Inferior centralizado</option>
+          <option value="inferior_direito" {% if cfg.wm_posicao == 'inferior_direito' %}selected{% endif %}>Inferior direito</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label for="prev-tamanho">Tamanho da logo</label>
+        <select id="prev-tamanho-modo">
+          <option value="automatico" {% if cfg.wm_tamanho_modo == 'automatico' %}selected{% endif %}>Automático ({{ cfg.wm_tamanho_percentual }}%)</option>
+          <option value="fixo" {% if cfg.wm_tamanho_modo == 'fixo' %}selected{% endif %}>Fixo ({{ cfg.wm_tamanho_fixo_px }} px)</option>
+        </select>
+      </div>
+      <div class="campo" id="campo-percentual" {% if cfg.wm_tamanho_modo == 'fixo' %}hidden{% endif %}>
+        <label for="prev-percentual">Percentual: <output id="saida-percentual">{{ cfg.wm_tamanho_percentual }}%</output></label>
+        <input type="range" id="prev-percentual" min="2" max="20" step="0.5"
+               value="{{ cfg.wm_tamanho_percentual }}">
+      </div>
+      <div class="campo">
+        <label for="prev-margem">Margem: <output id="saida-margem">{{ cfg.wm_margem_percentual }}%</output></label>
+        <input type="range" id="prev-margem" min="0" max="10" step="0.5"
+               value="{{ cfg.wm_margem_percentual }}">
+      </div>
+      <div class="campo">
+        <label for="prev-opacidade">Opacidade: <output id="saida-opacidade">{{ cfg.wm_opacidade }}%</output></label>
+        <input type="range" id="prev-opacidade" min="0" max="100" step="1"
+               value="{{ cfg.wm_opacidade }}" oninput="atualizarOpacidade(this.value)">
+      </div>
+    </div>
+
+    <div class="quadro-preview" id="quadro-preview">
+      <img id="imagem-preview"
+           src="{{ url_for('processamento.preview', obra_id=obra['id']) }}"
+           alt="Pré-visualização da página com a marca d'água aplicada">
+      <div class="preview-carregando" id="preview-carregando" hidden>Gerando pré-visualização…</div>
+      <div class="imagem-erro" id="preview-erro" hidden>
+        Não foi possível gerar a pré-visualização desta página.
+      </div>
+    </div>
+
+    <!-- COMPARAÇÃO ANTES/DEPOIS -->
+    <h3 class="subtitulo">Comparação: original × processada</h3>
+    <div class="comparacao" id="comparacao">
+      <img class="comparacao-original" id="imagem-comparacao-original"
+           src="{{ url_for('obras.arquivo_pagina', obra_id=obra['id'], pagina_id=paginas[0]['id'], tipo='original') }}"
+           alt="Página original sem marca d'água">
+      <img class="comparacao-processada" id="imagem-comparacao"
+           src="{{ url_for('processamento.preview', obra_id=obra['id']) }}"
+           alt="Página processada com marca d'água">
+      <span class="comparacao-rotulo comparacao-rotulo-esq">ORIGINAL</span>
+      <span class="comparacao-rotulo comparacao-rotulo-dir">PROCESSADA</span>
+      <input type="range" class="comparacao-controle" id="comparacao-controle"
+             min="0" max="100" value="50"
+             aria-label="Controle deslizante de comparação">
+      <div class="imagem-erro imagem-erro-sobreposta" id="comparacao-erro" hidden>
+        Não foi possível carregar as imagens da comparação.
+      </div>
+    </div>
+    {% else %}
+    <div class="estado-vazio">
+      <p>Adicione páginas à obra antes de processar.</p>
+      <a href="{{ url_for('obras.detalhes', obra_id=obra['id']) }}" class="botao botao-primario">Ir para o upload</a>
+    </div>
+    {% endif %}
+  </section>
+
+  <!-- CHECKLIST + PROGRESSO ------------------------------------------->
+  <aside class="painel painel-lateral-processamento">
+    <div class="painel-cabecalho"><h2>Checklist</h2></div>
+    <ul class="checklist">
+      {% for item in checklist %}
+      <li class="{% if item.ok %}check-ok{% else %}check-falha{% endif %}">
+        <span aria-hidden="true">{% if item.ok %}✓{% else %}⚠{% endif %}</span>
+        {{ item.texto }}
+      </li>
+      {% endfor %}
+    </ul>
+    {% if problemas %}
+    <div class="flash flash-erro" role="alert">
+      <strong>Existem problemas que precisam ser corrigidos:</strong>
+      <ul>
+        {% for problema in problemas %}<li>{{ problema }}</li>{% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <button type="button" class="botao botao-primario botao-largo"
+            id="botao-processar" {% if not pode_processar or not paginas %}disabled{% endif %}>
+      Processar obra
+    </button>
+    <button type="button" class="botao botao-contorno botao-largo"
+            id="botao-cancelar" hidden>Cancelar processamento</button>
+
+    <div class="progresso-box" id="progresso-box" hidden>
+      <div class="barra-progresso" role="progressbar" aria-valuemin="0"
+           aria-valuemax="100" aria-valuenow="0" id="barra-progresso">
+        <div class="barra-progresso-preenchimento" id="barra-preenchimento"></div>
+      </div>
+      <p class="progresso-numeros" id="progresso-numeros">0 / 0 páginas · 0%</p>
+      <p class="progresso-status" id="progresso-status">Preparando…</p>
+      <p class="progresso-pagina texto-suave" id="progresso-pagina"></p>
+    </div>
+
+    <div class="resultado-box" id="resultado-box" hidden>
+      <p id="resultado-mensagem"></p>
+      <a class="botao botao-secundario botao-largo" id="botao-relatorio"
+         href="{{ url_for('processamento.relatorio', obra_id=obra['id']) }}">Ver relatório</a>
+      <a class="botao botao-primario botao-largo"
+         href="{{ url_for('obras.visualizador', obra_id=obra['id']) }}">Visualizar resultado</a>
+    </div>
+
+    <div class="aviso-preservacao">
+      <strong>🔒 Preservação do original</strong>
+      <p>O processamento lê os arquivos de <code>uploads/originais/</code> e grava
+         novas imagens em <code>uploads/processadas/</code>. Os originais
+         <strong>nunca são alterados</strong>.</p>
+    </div>
+  </aside>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  window.FCJA_PROCESSAMENTO = {
+    obraId: {{ obra['id'] }},
+    temPaginas: {{ 'true' if paginas else 'false' }},
+    urlIniciar: "{{ url_for('processamento.iniciar', obra_id=obra['id']) }}",
+    urlStatus: "{{ url_for('processamento.status', obra_id=obra['id']) }}",
+    urlCancelar: "{{ url_for('processamento.cancelar', obra_id=obra['id']) }}",
+    urlPreview: "{{ url_for('processamento.preview', obra_id=obra['id']) }}",
+    paginas: [
+      {% for pagina in paginas %}
+      {
+        original: "{{ url_for('obras.arquivo_pagina', obra_id=obra['id'], pagina_id=pagina['id'], tipo='original') }}",
+        processada: {% if pagina['arquivo_processado'] %}{{ (url_for('obras.arquivo_pagina', obra_id=obra['id'], pagina_id=pagina['id'], tipo='processada') ~ '?v=' ~ ((pagina['data_processamento'] or pagina['arquivo_processado']) | urlencode)) | tojson }}{% else %}null{% endif %}
+      }{{ ',' if not loop.last }}
+      {% endfor %}
+    ]
+  };
+</script>
+<script src="{{ url_for('static', filename='js/processamento.js') }}"></script>
+{% endblock %}

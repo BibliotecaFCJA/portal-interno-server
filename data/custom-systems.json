@@ -1,0 +1,126 @@
+[
+  {
+    "id": "4c0622e6810f4eeeb2642ed7",
+    "name": "Enderaçamento",
+    "description": "Faça e-mails automaticamente.",
+    "category": "Operações",
+    "icon": "MapPin",
+    "type": "local",
+    "sourceFolder": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno\\storage\\projects\\4c0622e6810f4eeeb2642ed7",
+    "workDir": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno\\storage\\projects\\4c0622e6810f4eeeb2642ed7",
+    "startCommand": [
+      "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno\\storage\\projects\\4c0622e6810f4eeeb2642ed7\\.venv\\Scripts\\python.exe",
+      "app.py"
+    ],
+    "port": 8000,
+    "accessUrl": "http://192.168.1.208:8000",
+    "env": {
+      "FLASK_ENV": "development",
+      "SECRET_KEY": "chave-secreta-dev-troque-em-producao",
+      "ADMIN_USERNAME": "Biblioteca",
+      "ADMIN_PASSWORD": "BIBLIOTECA.FCJA@CB"
+    },
+    "status": "published",
+    "errorMessage": null,
+    "createdAt": "2026-09-10T18:32:01.29Z",
+    "updatedAt": "2026-11-03T18:17:52.208Z",
+    "validatedAt": "2026-11-03T18:17:32.839Z"
+  },
+  {
+    "id": "1eaeabc6f5b14257b8060d6115a84db3",
+    "name": "Inventário",
+    "description": "Sistema de gerenciamento de Inventário",
+    "category": "Dados",
+    "icon": "Boxes",
+    "type": "local",
+    "sourceFolder": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno\\storage\\projects\\1eaeabc6f5b14257b8060d6115a84db3",
+    "workDir": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno\\storage\\projects\\1eaeabc6f5b14257b8060d6115a84db3",
+    "startCommand": [
+      "python.exe",
+      "sistema/app.py"
+    ],
+    "port": 5001,
+    "accessUrl": "http://127.0.0.1:5001",
+    "status": "published",
+    "errorMessage": null,
+    "createdAt": "2026-10-28T17:59:36.169Z",
+    "updatedAt": "2026-11-10T19:03:48.084Z",
+    "validatedAt": "2026-11-10T19:03:45.038Z"
+  },
+  {
+    "id": "1f002104eff64f4c8beb227e2e0d8fce",
+    "name": "Empréstimo",
+    "description": "Sistema de empréstimo.",
+    "category": "Vendas",
+    "icon": "Settings",
+    "type": "local",
+    "sourceFolder": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno\\storage\\projects\\1f002104eff64f4c8beb227e2e0d8fce",
+    "workDir": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno\\storage\\projects\\1f002104eff64f4c8beb227e2e0d8fce",
+    "startCommand": [
+      "python.exe",
+      "app.py"
+    ],
+    "port": 5000,
+    "accessUrl": "http://127.0.0.1:5000",
+    "status": "published",
+    "errorMessage": null,
+    "createdAt": "2026-10-28T18:04:34.522Z",
+    "updatedAt": "2026-11-05T18:16:31.333Z",
+    "validatedAt": "2026-10-28T18:11:42.081Z"
+  },
+  {
+    "id": "708cd81416994ce3b3f826263d4813a8",
+    "name": "Marca d'água",
+    "description": "Sistema de adição de marca d'agua aos pdf de livros.",
+    "category": "Produtividade",
+    "icon": "FileImage",
+    "type": "local",
+    "sourceFolder": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno\\storage\\projects\\708cd81416994ce3b3f826263d4813a8",
+    "workDir": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno\\storage\\projects\\708cd81416994ce3b3f826263d4813a8",
+    "startCommand": [
+      "python.exe",
+      "app.py"
+    ],
+    "port": 8001,
+    "accessUrl": "http://127.0.0.1:8001",
+    "env": {
+      "SECRET_KEY": "4b39d0c41d319a12e874cab4648ad59d933119804597a4603d384ba55090c08a",
+      "DATABASE_URL": "instance/database.sqlite",
+      "UPLOAD_FOLDER": "uploads",
+      "MAX_CONTENT_LENGTH": "1073741824",
+      "MAX_TAMANHO_ARQUIVO": "524288000",
+      "ADMIN_EMAIL": "admin@fcja.pb.gov.br",
+      "ADMIN_NOME": "Administrador",
+      "ADMIN_SENHA": "fcja@2026",
+      "FLASK_HOST": "127.0.0.1",
+      "FLASK_PORT": "5000",
+      "FLASK_DEBUG": "0"
+    },
+    "status": "published",
+    "errorMessage": null,
+    "createdAt": "2026-11-03T18:31:20.647Z",
+    "updatedAt": "2026-11-11T16:32:13.609Z",
+    "validatedAt": "2026-11-11T16:32:10.708Z"
+  },
+  {
+    "id": "72cb478eaceb4e67823cc7c9ef57aeae",
+    "name": "Catalógo",
+    "description": "Sistema de gerenciamento de um catalogo.",
+    "category": "Dados",
+    "icon": "Boxes",
+    "type": "local",
+    "sourceFolder": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno\\storage\\projects\\72cb478eaceb4e67823cc7c9ef57aeae",
+    "workDir": "C:\\Users\\T.I Primeira Chance\\Documents\\GitHub\\portal-interno\\storage\\projects\\72cb478eaceb4e67823cc7c9ef57aeae",
+    "startCommand": [
+      "python.exe",
+      "app.py"
+    ],
+    "status": "published",
+    "errorMessage": null,
+    "createdAt": "2026-11-03T19:16:25.005Z",
+    "updatedAt": "2026-11-10T19:02:50.873Z",
+    "port": 8002,
+    "accessUrl": "http://127.0.0.1:8002",
+    "validatedAt": "2026-11-10T19:02:48.546Z"
+  }
+]

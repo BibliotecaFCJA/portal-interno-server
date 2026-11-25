@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block titulo %}{{ app_nome }}{% endblock %} — {{ instituicao }}</title>
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="{{ url_for('static', filename='img/marca-dagua.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {# Aplica o tema antes da primeira pintura, evitando tela branca. #}
+  <script>
+    (function () {
+      var escolhido = 'sistema';
+      try {
+        var v = localStorage.getItem('tema');
+        if (v === 'escuro' || v === 'claro') { escolhido = v; }
+      } catch (e) {}
+      var escuro = escolhido === 'sistema'
+        ? !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        : escolhido === 'escuro';
+      var raiz = document.documentElement;
+      raiz.setAttribute('data-tema', escolhido);
+      if (escuro) { raiz.classList.add('dark'); }
+      raiz.style.colorScheme = escuro ? 'dark' : 'light';
+    })();
+  </script>
+</head>
+
+{# Botão de tema: cicla sistema -> escuro -> claro. #}
+{% macro botao_tema(fixo=false) %}
+<button type="button" class="botao botao-contorno botao-tema{% if fixo %} botao-tema-fixo{% endif %}"
+        data-tema-botao
+        title="Tema: automático (sistema)" aria-label="Usar tema escuro">
+  <svg class="tema-icone" data-tema="sistema" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <rect x="2" y="3" width="20" height="14" rx="2"></rect>
+    <path d="M8 21h8M12 17v4"></path>
+  </svg>
+  <svg class="tema-icone" data-tema="escuro" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+  <svg class="tema-icone" data-tema="claro" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="4.2"></circle>
+    <path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8"></path>
+  </svg>
+</button>
+{% endmacro %}
+<body>
+  {% if usuario %}
+  <header class="topo">
+    <div class="topo-conteudo">
+      <a class="marca" href="{{ url_for('dashboard.index') }}">
+        <img src="{{ url_for('static', filename='img/logo.jpeg') }}"
+             alt="Logo da Fundação Casa de José Américo" class="marca-logo">
+        <span class="marca-texto">
+          <strong>{{ app_nome }}</strong>
+          <small>{{ app_subtitulo }}</small>
+        </span>
+      </a>
+      <div class="topo-usuario">
+        <div class="usuario-info">
+          <span class="usuario-nome">{{ usuario['nome'] }}</span>
+          <span class="usuario-papel">{{ usuario['papel'] }}</span>
+        </div>
+        {{ botao_tema() }}
+        <a class="botao botao-contorno botao-pequeno" href="{{ url_for('auth.logout') }}">Sair</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="lateral" aria-label="Menu principal">
+      <a href="{{ url_for('dashboard.index') }}"
+         class="lateral-item {% if request.endpoint == 'dashboard.index' %}ativo{% endif %}">
+        Dashboard
+      </a>
+      <a href="{{ url_for('obras.lista') }}"
+         class="lateral-item {% if request.endpoint == 'obras.lista' %}ativo{% endif %}">
+        Obras
+      </a>
+      <a href="{{ url_for('obras.nova') }}"
+         class="lateral-item {% if request.endpoint == 'obras.nova' %}ativo{% endif %}">
+        + Nova obra
+      </a>
+      <a href="{{ url_for('configuracoes.index') }}"
+         class="lateral-item {% if request.endpoint == 'configuracoes.index' %}ativo{% endif %}">
+        Configurações
+      </a>
+      <a href="{{ url_for('logs') }}"
+         class="lateral-item {% if request.endpoint == 'logs' %}ativo{% endif %}">
+        Atividades
+      </a>
+    </nav>
+
+    <main class="conteudo">
+      {% with mensagens = get_flashed_messages(with_categories=true) %}
+        {% if mensagens %}
+          <div class="flash-area">
+          {% for categoria, texto in mensagens %}
+            <div class="flash flash-{{ categoria }}" role="alert">{{ texto }}</div>
+          {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+      {% block conteudo %}{% endblock %}
+    </main>
+  </div>
+
+  <footer class="rodape">
+    <span>{{ instituicao }} — {{ ano_atual }}</span>
+    <span>Preservação do acervo: os arquivos originais nunca são alterados pelo sistema.</span>
+    <span class="rodape-desenvolvedor">
+      Desenvolvido por
+      <a href="https://miguel-fernandes-portfolio.vercel.app/" target="_blank" rel="noopener noreferrer">Miguel Fernandes</a>
+      e
+      <a href="https://portsamuellmsa.vercel.app/" target="_blank" rel="noopener noreferrer">Samuel Lucas</a>
+    </span>
+  </footer>
+  {% else %}
+  {# Páginas sem autenticação (login) #}
+  <main class="conteudo-login">
+    {{ botao_tema(fixo=true) }}
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+      {% if mensagens %}
+        <div class="flash-area">
+        {% for categoria, texto in mensagens %}
+          <div class="flash flash-{{ categoria }}" role="alert">{{ texto }}</div>
+        {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block conteudo_login %}{% endblock %}
+  </main>
+  {% endif %}
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

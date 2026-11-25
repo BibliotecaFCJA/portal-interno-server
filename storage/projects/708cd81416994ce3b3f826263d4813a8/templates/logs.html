@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block titulo %}Atividades{% endblock %}
+{% block conteudo %}
+<section class="cabecalho-pagina">
+  <div>
+    <h1>Log de atividades</h1>
+    <p class="texto-suave">
+      Registro de ações para auditoria do acervo, agrupado por mês.
+      {% if meses %}
+        {{ total }} registro{{ 's' if total != 1 }}
+        em {{ meses | length }} mês{{ 'es' if meses | length != 1 }}.
+      {% endif %}
+    </p>
+  </div>
+</section>
+
+{# ---------- Filtros ---------- #}
+<section class="painel logs-filtros-painel">
+  <form method="get" action="{{ url_for('logs') }}" class="logs-filtros">
+    <div class="logs-filtros-grade">
+      <div class="campo">
+        <label for="filtro-usuario">Usuário</label>
+        <select id="filtro-usuario" name="usuario">
+          <option value="">Todos os usuários</option>
+          {% for nome in usuarios %}
+            <option value="{{ nome }}" {% if filtros.usuario == nome %}selected{% endif %}>{{ nome }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="campo">
+        <label for="filtro-acao">Ação</label>
+        <select id="filtro-acao" name="acao">
+          <option value="">Todas as ações</option>
+          {% for item in acoes %}
+            <option value="{{ item }}" {% if filtros.acao == item %}selected{% endif %}>{{ item }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="campo">
+        <label for="filtro-data-de">Data — de</label>
+        <input type="date" id="filtro-data-de" name="data_de"
+               value="{{ filtros.data_de }}" max="{{ filtros.data_ate }}">
+      </div>
+
+      <div class="campo">
+        <label for="filtro-data-ate">Data — até</label>
+        <input type="date" id="filtro-data-ate" name="data_ate"
+               value="{{ filtros.data_ate }}" min="{{ filtros.data_de }}">
+      </div>
+    </div>
+
+    <div class="acoes-formulario logs-filtros-acoes">
+      <button type="submit" class="botao botao-primario">Filtrar</button>
+      {% if tem_filtro %}
+        <a class="botao botao-contorno" href="{{ url_for('logs') }}">Limpar filtros</a>
+        <span class="texto-suave">{{ total }} resultado{{ 's' if total != 1 }}</span>
+      {% endif %}
+    </div>
+  </form>
+</section>
+
+{# ---------- Meses ---------- #}
+{% if meses %}
+<section class="logs-meses">
+  {% for item in meses %}
+    {% set aberto = item.mes == mes_aberto %}
+    <article class="logs-mes" data-mes="{{ item.mes }}">
+      <a class="logs-mes-cabecalho"
+         href="?{% if base_qs %}{{ base_qs }}&amp;{% endif %}mes={{ item.mes }}"
+         id="logs-cab-{{ item.mes }}"
+         aria-expanded="{{ 'true' if aberto else 'false' }}"
+         aria-controls="logs-corpo-{{ item.mes }}">
+        <svg class="logs-mes-seta" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+             aria-hidden="true"><path d="M9 18l6-6-6-6"></path></svg>
+        <span class="logs-mes-nome">{{ item.rotulo }}</span>
+        <span class="logs-mes-contagem">{{ item.total }} registro{{ 's' if item.total != 1 }}</span>
+      </a>
+
+      <div class="logs-mes-conteudo" id="logs-corpo-{{ item.mes }}"
+           aria-labelledby="logs-cab-{{ item.mes }}"
+           {% if not aberto %}hidden{% endif %}>
+        {% if aberto %}
+          {% include "_logs_mes.html" %}
+        {% endif %}
+      </div>
+    </article>
+  {% endfor %}
+</section>
+{% else %}
+<section class="painel">
+  <div class="estado-vazio">
+    <p>
+      {% if tem_filtro %}
+        Nenhum registro de atividade com esses filtros.
+      {% else %}
+        Nenhum registro de atividade.
+      {% endif %}
+    </p>
+    {% if tem_filtro %}
+      <a class="botao botao-contorno" href="{{ url_for('logs') }}">Limpar filtros</a>
+    {% endif %}
+  </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/logs.js') }}"></script>
+{% endblock %}

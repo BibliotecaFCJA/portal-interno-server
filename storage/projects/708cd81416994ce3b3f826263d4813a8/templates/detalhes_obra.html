@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% block titulo %}{{ obra['titulo'] }}{% endblock %}
+{% block conteudo %}
+<section class="cabecalho-pagina">
+  <div>
+    <a href="{{ url_for('obras.lista') }}" class="link voltar">← Obras</a>
+    <h1>{{ obra['titulo'] }}</h1>
+    <p class="texto-suave">
+      <code class="codigo">{{ obra['codigo'] }}</code>
+      {% if obra['autor'] %} · {{ obra['autor'] }}{% endif %}
+      {% if obra['ano'] %} · {{ obra['ano'] }}{% endif %}
+    </p>
+  </div>
+  <div class="grupo-botoes">
+    <a href="{{ url_for('obras.visualizador', obra_id=obra['id']) }}"
+       class="botao botao-contorno">Visualizar páginas</a>
+    {% if obra['status'] in ('processada', 'parcial') %}
+    <a href="{{ url_for('obras.baixar', obra_id=obra['id']) }}"
+       class="botao botao-secundario">Baixar obra (ZIP)</a>
+    {% endif %}
+    <a href="{{ url_for('processamento.tela', obra_id=obra['id']) }}"
+       class="botao botao-primario">Processar obra</a>
+  </div>
+</section>
+
+<div class="grade-ficha">
+  <section class="painel">
+    <div class="painel-cabecalho"><h2>Ficha da obra</h2></div>
+    <dl class="ficha">
+      <div><dt>Código</dt><dd><code class="codigo">{{ obra['codigo'] }}</code></dd></div>
+      <div><dt>Título</dt><dd>{{ obra['titulo'] }}</dd></div>
+      <div><dt>Autor</dt><dd>{{ obra['autor'] or '—' }}</dd></div>
+      <div><dt>Ano</dt><dd>{{ obra['ano'] or '—' }}</dd></div>
+      <div><dt>Coleção</dt><dd>{{ obra['colecao'] or '—' }}</dd></div>
+      <div><dt>Responsável</dt><dd>{{ obra['responsavel'] or '—' }}</dd></div>
+      <div><dt>Páginas</dt><dd>{{ obra['quantidade_paginas'] }}</dd></div>
+      <div><dt>Status</dt>
+        <dd><span class="etiqueta etiqueta-{{ obra['status'] }}">{{ rotulos_status.get(obra['status'], obra['status']) }}</span></dd>
+      </div>
+      <div><dt>Cadastrada em</dt><dd>{{ obra['data_cadastro'] | data_br }}</dd></div>
+      <div><dt>Processada em</dt><dd>{{ obra['data_processamento'] | data_br if obra['data_processamento'] else '—' }}</dd></div>
+      {% if obra['descricao'] %}
+      <div class="ficha-larga"><dt>Descrição</dt><dd>{{ obra['descricao'] }}</dd></div>
+      {% endif %}
+    </dl>
+  </section>
+
+  <section class="painel">
+    <div class="painel-cabecalho"><h2>Processamento</h2></div>
+    <div class="resumo-status">
+      <div class="linha-status">
+        <span class="ponto ponto-processada"></span>
+        Processadas: <strong>{{ contagens.get('processada', 0) }}</strong>
+      </div>
+      <div class="linha-status">
+        <span class="ponto ponto-original"></span>
+        Aguardando: <strong>{{ contagens.get('original', 0) }}</strong>
+      </div>
+      <div class="linha-status">
+        <span class="ponto ponto-erro"></span>
+        Com erro: <strong>{{ contagens.get('erro', 0) }}</strong>
+      </div>
+    </div>
+
+    {% if processamentos %}
+    <h3 class="subtitulo">Histórico</h3>
+    <ul class="lista-historico">
+      {% for p in processamentos %}
+      <li>
+        <span>{{ p['data'] | data_br }}</span>
+        <span>{{ p['quantidade_processada'] }} processadas
+          {% if p['quantidade_erros'] %} · {{ p['quantidade_erros'] }} erros{% endif %}</span>
+        <span class="etiqueta etiqueta-{{ 'processada' if p['status'] == 'concluido' else 'pendente' }}">
+          {{ p['status'] }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    <h3 class="subtitulo">Metadados do acervo</h3>
+    <div class="caixa-metadados">
+      <p><strong>Espaço livre:</strong> {{ espaco_livre }}</p>
+      <p class="texto-suave">Cada processamento gera um registro para
+        auditoria (tamanho da logo, opacidade, margem e posição).</p>
+    </div>
+
+    {% if usuario and usuario['papel'] != 'visualizador' %}
+    <h3 class="subtitulo zona-perigo">Zona de risco</h3>
+    <button type="button" class="botao botao-perigo"
+            id="botao-excluir">Excluir obra</button>
+    {% endif %}
+  </section>
+</div>
+
+<section class="painel">
+  <div class="painel-cabecalho">
+    <h2>Páginas digitalizadas</h2>
+    <span class="texto-suave">{{ paginas | length }} página(s)</span>
+  </div>
+
+  {% if usuario and usuario['papel'] != 'visualizador' %}
+  <div class="area-upload" id="area-upload"
+       aria-label="Área de upload de páginas">
+    <p class="area-upload-titulo">Arraste as imagens aqui</p>
+    <p class="texto-suave">ou</p>
+    <label class="botao botao-secundario botao-arquivo">
+      Selecionar arquivos
+      <input type="file" id="entrada-arquivos" multiple
+             accept=".jpg,.jpeg,.png,.tif,.tiff" class="sr-only">
+    </label>
+    <p class="ajuda">JPG · JPEG · PNG · TIFF · TIF — ordenação automática por número.</p>
+  </div>
+  <div id="feedback-upload" class="feedback-upload" aria-live="polite"></div>
+  {% endif %}
+
+  {% if paginas %}
+  <div class="grade-paginas">
+    {% for pagina in paginas %}
+    <div class="cartao-pagina" data-pagina="{{ pagina['id'] }}">
+      <div class="miniatura">
+        <a href="{{ url_for('obras.arquivo_pagina', obra_id=obra['id'], pagina_id=pagina['id'], tipo='original') }}"
+           target="_blank" rel="noopener" title="Abrir imagem original">
+          <img src="{{ url_for('processamento.miniatura', pagina_id=pagina['id']) }}"
+               alt="Miniatura da página {{ pagina['numero'] }}" loading="lazy">
+        </a>
+        <span class="numero-pagina">{{ '%03d' % pagina['numero'] }}</span>
+      </div>
+      <div class="info-pagina">
+        <span class="nome-arquivo" title="{{ pagina['nome_original'] }}">{{ pagina['nome_original'] }}</span>
+        <span class="texto-suave">
+          {{ pagina['largura'] or '?' }}×{{ pagina['altura'] or '?' }}
+          {% if pagina['resolucao'] %} · {{ pagina['resolucao'] }}{% endif %}
+        </span>
+        <span class="etiqueta etiqueta-{{ pagina['status_processamento'] }}">
+          {% if pagina['status_processamento'] == 'processada' %}✓{% elif pagina['status_processamento'] == 'processando' %}◐{% elif pagina['status_processamento'] == 'erro' %}✕{% else %}🟡{% endif %}
+          {{ rotulos_pagina.get(pagina['status_processamento'], pagina['status_processamento']) }}
+        </span>
+      </div>
+      {% if usuario and usuario['papel'] != 'visualizador' %}
+      <form method="post"
+            action="{{ url_for('obras.remover_pagina', obra_id=obra['id'], pagina_id=pagina['id']) }}"
+            class="form-remover-pagina"
+            data-confirmar="Remover a página {{ pagina['numero'] }} da obra? O arquivo original será preservado em disco.">
+        <button type="submit" class="botao-x" aria-label="Remover página {{ pagina['numero'] }}">×</button>
+      </form>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="estado-vazio">
+    <p>Nenhuma página adicionada ainda. Use a área de upload acima.</p>
+  </div>
+  {% endif %}
+</section>
+
+<!-- Modal de exclusão (proteção contra exclusão acidental) -->
+<div class="modal" id="modal-excluir" hidden>
+  <div class="modal-caixa" role="dialog" aria-modal="true"
+       aria-labelledby="modal-excluir-titulo">
+    <h2 id="modal-excluir-titulo">⚠ Atenção</h2>
+    <p>Os arquivos <strong>originais</strong> desta obra serão
+       <strong>removidos permanentemente</strong>.</p>
+    <p>Esta ação <strong>não pode ser desfeita</strong>.</p>
+    <div class="campo">
+      <label for="confirmar-codigo">
+        Digite o código da obra <code>{{ obra['codigo'] }}</code> para confirmar:
+      </label>
+      <input type="text" id="confirmar-codigo" autocomplete="off">
+    </div>
+    <form method="post" action="{{ url_for('obras.excluir', obra_id=obra['id']) }}"
+          id="form-excluir">
+      <input type="hidden" name="confirmar" id="campo-confirmar">
+      <div class="grupo-botoes modal-acoes">
+        <button type="button" class="botao botao-contorno"
+                id="cancelar-exclusao">Cancelar</button>
+        <button type="submit" class="botao botao-perigo"
+                id="confirmar-exclusao" disabled>Confirmar exclusão</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  window.FCJA_OBRA = {
+    id: {{ obra['id'] }},
+    codigo: "{{ obra['codigo'] }}",
+    uploadUrl: "{{ url_for('obras.upload_paginas', obra_id=obra['id']) }}"
+  };
+</script>
+<script src="{{ url_for('static', filename='js/upload.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#171717">
+  <title>{{ planilha['nome'] }} · Inventário</title>
+  <script>
+    try {
+      if (localStorage.getItem("inventario-tema") === "escuro") {
+        document.documentElement.dataset.theme = "dark";
+      }
+    } catch {}
+  </script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=8) }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand" aria-label="Fundação Casa de José Américo, Inventário">
+      <img class="brand-logo" src="{{ url_for('static', filename='logo-fcja-2026.jpeg') }}" alt="Fundação Casa de José Américo">
+      <span class="brand-name">INVENTÁRIO</span>
+    </div>
+    <nav class="topbar-navigation" aria-label="Navegação principal">
+      <a class="topbar-link" href="{{ url_for('inicio') }}">Acervo</a>
+      <a class="topbar-link is-active" href="{{ url_for('arquivos_enviados') }}">Arquivos enviados</a>
+    </nav>
+    <button class="theme-toggle" id="alternar-tema" type="button" aria-label="Ativar modo escuro" aria-pressed="false">
+      <span aria-hidden="true">☾</span> <span class="theme-toggle-label">Modo escuro</span>
+    </button>
+  </header>
+
+  <main class="page-shell spreadsheet-page">
+    <section class="page-heading spreadsheet-heading">
+      <div>
+        <p class="eyebrow">PLANILHA ENVIADA</p>
+        <h1>{{ planilha['nome'] }}</h1>
+      </div>
+      <div class="spreadsheet-actions">
+        <a class="button button-secondary" href="{{ url_for('arquivos_enviados') }}">Voltar aos arquivos enviados</a>
+        <a class="button button-secondary" href="{{ url_for('baixar_planilha', planilha_id=planilha['id']) }}">Baixar arquivo</a>
+        <form method="post" action="{{ url_for('excluir_planilha', planilha_id=planilha['id']) }}" data-confirmar="Excluir esta planilha e o arquivo enviado? Esta ação não pode ser desfeita.">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button class="button button-remove spreadsheet-delete" type="submit">Excluir planilha</button>
+        </form>
+      </div>
+    </section>
+
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+      {% if mensagens %}
+        <div class="notices" aria-live="polite">
+          {% for categoria, mensagem in mensagens %}
+            <p class="notice notice-{{ categoria }}">{{ mensagem }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% if pagina.abas|length > 1 %}
+      <nav class="spreadsheet-tabs" aria-label="Abas da planilha">
+        {% for aba in pagina.abas %}
+          <a class="spreadsheet-tab{% if aba.indice == pagina.aba_atual %} is-active{% endif %}"
+             href="{{ url_for('visualizar_planilha', planilha_id=planilha['id'], aba=aba.indice) }}">
+            {{ aba.nome }}
+          </a>
+        {% endfor %}
+      </nav>
+    {% endif %}
+
+    <div class="spreadsheet-editor-toolbar">
+      <p>Edite as células e salve. O arquivo original será atualizado.</p>
+      <div class="spreadsheet-pagination">
+        {% if pagina_linha > 0 %}
+          <a class="button button-secondary" href="{{ url_for('visualizar_planilha', planilha_id=planilha['id'], aba=pagina.aba_atual, linha=pagina_linha - 1, coluna=pagina_coluna) }}">Linhas anteriores</a>
+        {% endif %}
+        <span>Linhas {{ pagina_linha * 30 + 1 }}–{{ [((pagina_linha + 1) * 30), pagina.total_linhas]|min }} de {{ pagina.total_linhas }}</span>
+        {% if pagina_linha + 1 < total_paginas_linha %}
+          <a class="button button-secondary" href="{{ url_for('visualizar_planilha', planilha_id=planilha['id'], aba=pagina.aba_atual, linha=pagina_linha + 1, coluna=pagina_coluna) }}">Próximas linhas</a>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if pagina.total_colunas > 20 %}
+      <div class="spreadsheet-pagination spreadsheet-column-pagination">
+        {% if pagina_coluna > 0 %}
+          <a class="button button-secondary" href="{{ url_for('visualizar_planilha', planilha_id=planilha['id'], aba=pagina.aba_atual, linha=pagina_linha, coluna=pagina_coluna - 1) }}">Colunas anteriores</a>
+        {% endif %}
+        <span>Colunas {{ pagina_coluna * 20 + 1 }}–{{ [((pagina_coluna + 1) * 20), pagina.total_colunas]|min }} de {{ pagina.total_colunas }}</span>
+        {% if pagina_coluna + 1 < total_paginas_coluna %}
+          <a class="button button-secondary" href="{{ url_for('visualizar_planilha', planilha_id=planilha['id'], aba=pagina.aba_atual, linha=pagina_linha, coluna=pagina_coluna + 1) }}">Próximas colunas</a>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {% if pagina.linhas and pagina.colunas %}
+      <form method="post" action="{{ url_for('editar_planilha', planilha_id=planilha['id']) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="aba" value="{{ pagina.aba_atual }}">
+        <input type="hidden" name="linha" value="{{ pagina_linha }}">
+        <input type="hidden" name="coluna" value="{{ pagina_coluna }}">
+        <div class="spreadsheet-grid-wrap">
+          <table class="spreadsheet-grid">
+            <thead>
+              <tr>
+                <th scope="col" class="spreadsheet-row-number">#</th>
+                {% for numero_coluna in pagina.colunas %}
+                  <th scope="col">Coluna {{ numero_coluna }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for numero_linha, valores in pagina.linhas %}
+                <tr>
+                  <th scope="row" class="spreadsheet-row-number">{{ numero_linha }}</th>
+                  {% for valor in valores %}
+                    <td>
+                      <label class="visually-hidden" for="celula-{{ numero_linha }}-{{ pagina.colunas[loop.index0] }}">Linha {{ numero_linha }}, coluna {{ pagina.colunas[loop.index0] }}</label>
+                      <input id="celula-{{ numero_linha }}-{{ pagina.colunas[loop.index0] }}" name="celula_{{ numero_linha }}_{{ pagina.colunas[loop.index0] }}" value="{{ valor }}" data-valor-original="{{ valor }}" maxlength="32767" autocomplete="off">
+                    </td>
+                  {% endfor %}
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="spreadsheet-save">
+          <button class="button button-primary" type="submit">Salvar alterações</button>
+        </div>
+      </form>
+    {% else %}
+      <div class="spreadsheet-empty-state">
+        <h2>Esta planilha está vazia</h2>
+        <p>Não há células para exibir ou editar.</p>
+      </div>
+    {% endif %}
+  </main>
+  <footer class="site-footer">
+    <span>Desenvolvedor:</span>
+    <strong>Gabriel Bruno Costa De Lima</strong>
+  </footer>
+  <script>
+    const alternarTema = document.querySelector("#alternar-tema");
+    const corDoNavegador = document.querySelector('meta[name="theme-color"]');
+    const atualizarTema = (escuro) => {
+      document.documentElement.dataset.theme = escuro ? "dark" : "light";
+      corDoNavegador.content = escuro ? "#100d0e" : "#171717";
+      alternarTema.setAttribute("aria-pressed", String(escuro));
+      alternarTema.setAttribute("aria-label", escuro ? "Ativar modo claro" : "Ativar modo escuro");
+      alternarTema.querySelector(".theme-toggle-label").textContent = escuro ? "Modo claro" : "Modo escuro";
+      alternarTema.querySelector("[aria-hidden]").textContent = escuro ? "☀" : "☾";
+      try {
+        localStorage.setItem("inventario-tema", escuro ? "escuro" : "claro");
+      } catch {}
+    };
+    try {
+      if (localStorage.getItem("inventario-tema") === "escuro") {
+        document.documentElement.dataset.theme = "dark";
+      }
+    } catch {}
+    atualizarTema(document.documentElement.dataset.theme === "dark");
+    alternarTema.addEventListener("click", () => {
+      atualizarTema(document.documentElement.dataset.theme !== "dark");
+    });
+
+    document.querySelector(".spreadsheet-grid")?.closest("form")?.addEventListener("submit", (evento) => {
+      evento.currentTarget.querySelectorAll(".spreadsheet-grid input").forEach((campo) => {
+        if (campo.value === campo.dataset.valorOriginal) {
+          campo.removeAttribute("name");
+        }
+      });
+    });
+  </script>
+</body>
+</html>

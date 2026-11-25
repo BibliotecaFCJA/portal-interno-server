@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card content-panel p-4">
+    <div class="page-header compact">
+        <div>
+            <span class="eyebrow">Cadastros</span>
+            <h1 class="page-title">Instituições</h1>
+            <p class="page-subtitle">Gerencie as instituições relacionadas à biblioteca.</p>
+            <span class="result-count">{{ instituicoes|length }} registro(s) encontrado(s)</span>
+        </div>
+        <a href="{{ url_for('add') }}" class="btn btn-danger">+ Nova instituição</a>
+    </div>
+
+    <form action="/" method="GET" class="search-form mb-4" autocomplete="off">
+        <div class="input-group">
+            <input type="text" name="q" class="form-control" placeholder="Buscar instituição..." autocomplete="off">
+            <button class="btn btn-danger" type="submit">Buscar <span aria-hidden="true">⌕</span></button>
+        </div>
+    </form>
+
+<div class="bulk-actions-row mb-3">
+    <div id="botaoExcluirInst" class="bulk-actions">
+        <button type="submit" form="form-excluir-instituicoes" class="btn btn-danger" disabled>
+            Excluir selecionados
+        </button>
+    </div>
+    <div id="botaoEmailInst" class="bulk-actions bulk-email">
+        <button onclick="enviarEmailsInst()" class="btn btn-primary">
+            Enviar e-mail para selecionados
+        </button>
+    </div>
+</div>
+
+<form id="form-excluir-instituicoes" method="POST" action="{{ url_for('delete_selected_instituicoes') }}"
+      onsubmit="return confirm('Excluir as instituições selecionadas?')">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+</form>
+
+    <div class="table-responsive">
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th class="text-center selection-column">
+            <input type="checkbox"
+                   id="selecionarTodosInst"
+                   onclick="selecionarTodosInst()">
+        </th>
+            <th>Nome Oficial</th>
+            <th>Email</th>
+            <th>Telefone</th>
+            <th class="text-center">Ações</th>
+        </tr>
+    </thead>
+<tbody>
+{% for inst in instituicoes %}
+<tr>
+    <td>
+    <input type="checkbox"
+           name="instituicao_ids"
+            value="{{ inst.id }}"
+            data-email="{{ inst.email_oficial }}"
+            form="form-excluir-instituicoes"
+           onchange="atualizarBotaoInst()">
+</td>
+    <td><strong>{{ inst.nome_oficial }}</strong></td>
+    <td>{{ inst.email_oficial }}</td>
+    <td>{{ inst.telefone_principal }}</td>
+    <td class="text-center table-actions">
+        <a href="{{ url_for('view', id=inst.id) }}" class="btn btn-sm btn-info text-white">Ver detalhes</a>
+
+{% if inst.email_oficial %}
+<a href="https://mail.google.com/mail/?view=cm&fs=1&to={{ inst.email_oficial }}"
+   target="_blank"
+   class="btn btn-sm btn-success">
+   Email
+</a>
+{% endif %}
+
+        <a href="{{ url_for('edit_instituicao', id=inst.id) }}" class="btn btn-sm btn-warning">Editar</a>
+            <form method="POST" action="{{ url_for('delete', id=inst.id) }}" class="d-inline"
+                            onsubmit="return confirm('Excluir?')">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-sm btn-danger">Excluir</button>
+                </form>
+    </td>
+</tr>
+{% else %}
+<tr>
+    <td colspan="5" class="text-center py-5">
+        <span class="empty-icon" aria-hidden="true">▦</span>
+        <strong class="d-block mb-1">Nenhuma instituição cadastrada</strong>
+        <span class="page-subtitle">Cadastre uma nova instituição para começar.</span>
+        <a href="{{ url_for('add') }}" class="btn btn-danger mt-3">Cadastrar instituição</a>
+    </td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% block scripts %}
+<script>
+
+function atualizarBotaoInst() {
+    let selecionados = document.querySelectorAll('input[name="instituicao_ids"]:checked');
+    let botaoDiv = document.getElementById("botaoEmailInst");
+    let botaoExcluir = document.getElementById("botaoExcluirInst");
+    let acaoExcluir = botaoExcluir ? botaoExcluir.querySelector('button') : null;
+
+    if (botaoDiv) {
+        botaoDiv.style.display = selecionados.length > 0 ? "block" : "none";
+    }
+    if (acaoExcluir) {
+        acaoExcluir.disabled = selecionados.length === 0;
+    }
+}
+
+function selecionarTodosInst() {
+    let marcar = document.getElementById("selecionarTodosInst").checked;
+    let checkboxes = document.querySelectorAll('input[name="instituicao_ids"]');
+
+    checkboxes.forEach(cb => {
+        cb.checked = marcar;
+    });
+
+    atualizarBotaoInst();
+}
+
+function enviarEmailsInst() {
+    let checkboxes = document.querySelectorAll('input[name="instituicao_ids"]:checked');
+    let emails = [];
+
+    checkboxes.forEach(cb => {
+        if (cb.dataset.email) {
+            emails.push(cb.dataset.email);
+        }
+    });
+
+    if (emails.length > 0) {
+        let url = "https://mail.google.com/mail/?view=cm&fs=1&bcc=" + emails.join(",");
+        window.open(url, "_blank");
+    } else {
+        alert("Selecione pelo menos uma instituição.");
+    }
+}
+</script>
+{% endblock %}
+{% endblock %}

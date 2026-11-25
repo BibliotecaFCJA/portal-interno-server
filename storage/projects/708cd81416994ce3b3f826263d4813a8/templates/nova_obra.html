@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block titulo %}Nova obra{% endblock %}
+{% block conteudo %}
+<section class="cabecalho-pagina">
+  <div>
+    <h1>Nova obra</h1>
+    <p class="texto-suave">Cadastre a obra digitalizada e adicione suas páginas.</p>
+  </div>
+</section>
+
+{% if erros %}
+<div class="flash flash-erro" role="alert">
+  <strong>Verifique os dados informados:</strong>
+  <ul>
+    {% for erro in erros %}<li>{{ erro }}</li>{% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<div class="grade-duas">
+  <section class="painel">
+    <div class="painel-cabecalho"><h2>Dados da obra</h2></div>
+    <form method="post" class="formulario" autocomplete="off">
+      <div class="campo">
+        <label for="codigo">Código da obra</label>
+        <input type="text" id="codigo" name="codigo" maxlength="60"
+               placeholder="{{ codigo_sugerido }}" value="{{ dados.codigo }}">
+        <small class="ajuda">Deixe em branco para usar o código sugerido: <code>{{ codigo_sugerido }}</code></small>
+      </div>
+      <div class="campo">
+        <label for="titulo">Título <span class="obrigatorio">*</span></label>
+        <input type="text" id="titulo" name="titulo" required
+               maxlength="200" value="{{ dados.titulo }}">
+      </div>
+      <div class="linha-campos">
+        <div class="campo">
+          <label for="autor">Autor</label>
+          <input type="text" id="autor" name="autor" maxlength="200"
+                 value="{{ dados.autor }}">
+        </div>
+        <div class="campo campo-pequeno">
+          <label for="ano">Ano</label>
+          <input type="text" id="ano" name="ano" inputmode="numeric"
+                 maxlength="9" value="{{ dados.ano }}">
+        </div>
+      </div>
+      <div class="linha-campos">
+        <div class="campo">
+          <label for="colecao">Coleção</label>
+          <input type="text" id="colecao" name="colecao" maxlength="200"
+                 value="{{ dados.colecao }}">
+        </div>
+        <div class="campo">
+          <label for="responsavel">Responsável pela digitalização</label>
+          <input type="text" id="responsavel" name="responsavel" maxlength="200"
+                 value="{{ dados.responsavel }}">
+        </div>
+      </div>
+      <div class="campo">
+        <label for="descricao">Descrição</label>
+        <textarea id="descricao" name="descricao" rows="4"
+                  maxlength="2000">{{ dados.descricao }}</textarea>
+      </div>
+      <div class="acoes-formulario">
+        <button type="submit" class="botao botao-primario">Cadastrar obra e adicionar páginas</button>
+        <a href="{{ url_for('obras.lista') }}" class="botao botao-contorno">Cancelar</a>
+      </div>
+    </form>
+  </section>
+
+  <aside class="painel painel-ajuda">
+    <div class="painel-cabecalho"><h2>Como funciona</h2></div>
+    <ol class="passos">
+      <li>Preencha os dados da obra.</li>
+      <li>Após cadastrar, arraste as imagens digitalizadas para a área de upload.</li>
+      <li>Confira a organização automática das páginas.</li>
+      <li>Visualize a pré-visualização da marca d'água.</li>
+      <li>Clique em <strong>Processar obra</strong> e acompanhe o progresso.</li>
+      <li>Baixe a obra processada em ZIP.</li>
+    </ol>
+    <div class="aviso-preservacao">
+      <strong>🔒 Preservação garantida</strong>
+      <p>As digitalizações originais são guardadas em pasta própria e
+         <strong>nunca são alteradas</strong> pelo processamento. A marca d'água é
+         aplicada em cópias separadas.</p>
+    </div>
+    <div class="aviso-formatos">
+      <strong>Formatos aceitos</strong>
+      <p>JPG · JPEG · PNG · TIFF · TIF</p>
+    </div>
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block titulo %}Obras{% endblock %}
+{% block conteudo %}
+<section class="cabecalho-pagina">
+  <div>
+    <h1>Obras</h1>
+    <p class="texto-suave">{{ total }} obra(s) no acervo digitalizado.</p>
+  </div>
+  <a href="{{ url_for('obras.nova') }}" class="botao botao-primario">+ Nova obra</a>
+</section>
+
+<section class="painel">
+  <form method="get" class="filtros" role="search">
+    <div class="campo campo-busca">
+      <label for="busca" class="sr-only">Buscar</label>
+      <input type="search" id="busca" name="busca" value="{{ busca }}"
+             placeholder="Buscar por título, autor, código ou coleção...">
+    </div>
+    <div class="campo">
+      <label for="status" class="sr-only">Status</label>
+      <select id="status" name="status">
+        <option value="">Todos os status</option>
+        {% for chave, rotulo in rotulos_status.items() %}
+        <option value="{{ chave }}" {% if status == chave %}selected{% endif %}>{{ rotulo }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="campo">
+      <label for="ordenar" class="sr-only">Ordenar</label>
+      <select id="ordenar" name="ordenar">
+        <option value="recentes" {% if ordenar == 'recentes' %}selected{% endif %}>Mais recentes</option>
+        <option value="antigas" {% if ordenar == 'antigas' %}selected{% endif %}>Mais antigas</option>
+        <option value="codigo" {% if ordenar == 'codigo' %}selected{% endif %}>Código (A→Z)</option>
+        <option value="titulo" {% if ordenar == 'titulo' %}selected{% endif %}>Título (A→Z)</option>
+        <option value="ano" {% if ordenar == 'ano' %}selected{% endif %}>Ano</option>
+      </select>
+    </div>
+    <button type="submit" class="botao botao-secundario">Filtrar</button>
+    {% if busca or status %}
+    <a href="{{ url_for('obras.lista') }}" class="link">Limpar</a>
+    {% endif %}
+  </form>
+
+  {% if obras %}
+  <div class="tabela-rolagem">
+    <table class="tabela">
+      <thead>
+        <tr>
+          <th scope="col">Código</th>
+          <th scope="col">Título</th>
+          <th scope="col">Autor</th>
+          <th scope="col">Ano</th>
+          <th scope="col">Páginas</th>
+          <th scope="col">Status</th>
+          <th scope="col">Data</th>
+          <th scope="col"><span class="sr-only">Ações</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for obra in obras %}
+        <tr>
+          <td><code class="codigo">{{ obra['codigo'] }}</code></td>
+          <td class="celula-titulo">{{ obra['titulo'] }}</td>
+          <td>{{ obra['autor'] or '—' }}</td>
+          <td>{{ obra['ano'] or '—' }}</td>
+          <td>{{ obra['quantidade_paginas'] }}</td>
+          <td>
+            {% set s = obra['status'] %}
+            <span class="etiqueta etiqueta-{{ s }}">
+              {% if s == 'processada' %}✓{% elif s == 'processando' %}◐{% elif s == 'parcial' %}◑{% elif s == 'erro' %}✕{% else %}…{% endif %}
+              {{ rotulos_status.get(s, s) }}
+            </span>
+          </td>
+          <td>{{ obra['data_cadastro'] | data_br_simples }}</td>
+          <td class="celula-acoes">
+            <a class="botao botao-pequeno botao-contorno"
+               href="{{ url_for('obras.detalhes', obra_id=obra['id']) }}">Detalhes</a>
+            {% if obra['status'] in ('processada', 'parcial') %}
+            <a class="botao botao-pequeno botao-secundario"
+               href="{{ url_for('obras.baixar', obra_id=obra['id']) }}">Baixar</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if total_paginas > 1 %}
+  <nav class="paginacao" aria-label="Paginação">
+    {% set args_base = {'busca': busca, 'status': status, 'ordenar': ordenar} %}
+    {% if pagina > 1 %}
+      <a class="botao botao-pequeno botao-contorno"
+         href="{{ url_for('obras.lista', pagina=pagina-1, **args_base) }}">← Anterior</a>
+    {% endif %}
+    <span>Página {{ pagina }} de {{ total_paginas }}</span>
+    {% if pagina < total_paginas %}
+      <a class="botao botao-pequeno botao-contorno"
+         href="{{ url_for('obras.lista', pagina=pagina+1, **args_base) }}">Próxima →</a>
+    {% endif %}
+  </nav>
+  {% endif %}
+  {% else %}
+  <div class="estado-vazio">
+    {% if busca or status %}
+    <p>Nenhuma obra encontrada com os filtros atuais.</p>
+    <a href="{{ url_for('obras.lista') }}" class="botao botao-contorno">Limpar filtros</a>
+    {% else %}
+    <p>Nenhuma obra cadastrada ainda.</p>
+    <a href="{{ url_for('obras.nova') }}" class="botao botao-primario">Cadastrar primeira obra</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

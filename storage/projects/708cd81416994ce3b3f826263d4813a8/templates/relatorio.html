@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block titulo %}Relatório — {{ obra['titulo'] }}{% endblock %}
+{% block conteudo %}
+<section class="cabecalho-pagina">
+  <div>
+    <a href="{{ url_for('processamento.tela', obra_id=obra['id']) }}" class="link voltar">← Processar obra</a>
+    <h1>Relatório de processamento</h1>
+    <p class="texto-suave">
+      <code class="codigo">{{ obra['codigo'] }}</code> · {{ obra['titulo'] }}
+    </p>
+  </div>
+  <div class="grupo-botoes">
+    <a href="{{ url_for('obras.visualizador', obra_id=obra['id']) }}"
+       class="botao botao-contorno">Visualizar resultado</a>
+    <a href="{{ url_for('obras.detalhes', obra_id=obra['id']) }}"
+       class="botao botao-contorno">Detalhes da obra</a>
+  </div>
+</section>
+
+<section class="painel">
+  {% include '_relatorio.html' %}
+</section>
+{% endblock %}
